@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaveDash</title>
+</head>
+<body>
+  <script type="module">
+    import {h, render} from "https://esm.sh/preact"
+    import {useState, useEffect, useRef, useId} from "https://esm.sh/preact/hooks"
+    import {encode as encodeMsgpack, decode as decodeMsgpack} from "https://esm.sh/@msgpack/msgpack"
+
+    function upperFirst(s) {
+      return s.length > 0 ? s[0].toUpperCase() + s.slice(1) : ""
+    }
+
+    function dollars(s) {
+      return new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(s)
+    }
+
+    function useRetainedState(name, defaultValue) {
+      const oldValue = localStorage.getItem(name)
+      const [state, setState] = useState(oldValue !== null ? JSON.parse(oldValue) : defaultValue)
+      const setRetainedState = newValue => setState(state => {
+        if (typeof newValue === "function") newValue = newValue(state)
+        localStorage.setItem(name, JSON.stringify(newValue))
+        return newValue
+      })
+      return [state, setRetainedState]
+    }
+
+    function usePrevious(value) {
+      const ref = useRef(null)
+      useEffect(() => { ref.current = value }, [value])
+      return ref.current
+    }
+
+    function Settings() {
+      return h("div", null,
+        h("h2", null, "Settings"),
+        h("button", {onClick: () => localStorage.clear()}, "Clear Local Storage")
+      )
+    }
+
+    function Account({info, warn, alpacaFetch, alpacaPaper, setAlpacaPaper, alpacaKey, setAlpacaKey, alpacaSecret, setAlpacaSecret, alpacaConnected, setAlpacaConnected, alpacaCash, setAlpacaCash, alpacaBuyingPower, setAlpacaBuyingPower, setAlpacaPositions, setAlpacaOrders}) {
+      const id = useId()
+      const [alpacaAccountNumber, setAlpacaAccountNumber] = useState("")
+      const [alpacaConnecting, setAlpacaConnecting] = useState(false)
+
+      function onConnectClick() {
+        setAlpacaConnecting(true)
+        alpacaFetch("GET", "/v2/account")
+          .then(res => {
+            setAlpacaAccountNumber(res.account_number)
+            setAlpacaCash(res.cash)
+            setAlpacaBuyingPower(res.buying_power)
+            alpacaFetch("GET", "/v2/positions")
+              .then(res => setAlpacaPositions(res))
+              .catch(err => warn(`Alpaca failed to retrieve positions. ${err}`))
+            alpacaFetch("GET", "/v2/orders")
+              .then(res => setAlpacaOrders(res))
+              .catch(err => warn(`Alpaca failed to retrieve orders. ${err}`))
+            setAlpacaConnecting(false)
+            setAlpacaConnected(true)
+            info("Alpaca connected.")
+          })
+          .catch(err => {
+            setAlpacaConnecting(false)
+            warn(`Alpaca connection failed. ${err}`)
+          })
+      }
+
+      function onDisconnectClick() {
+        if (!alpacaConnected) return
+        setAlpacaPositions([])
+        setAlpacaOrders([])
+        setAlpacaConnected(false)
+        info("Alpaca disconnected.")
+      }
+
+      return h("div", null,
+        h("h2", null, "Account"),
+        !alpacaConnected && h("div", null,
+          h("h3", null, "Alpaca"),
+          h("div", null,
+            h("label", {htmlFor: `${id}-alpaca-paper`}, "Alpaca Paper: "),
+            h("input", {id: `${id}-alpaca-paper`, type: "checkbox", checked: alpacaPaper, onChange: e => setAlpacaPaper(e.target.checked)})
+          ),
+          h("div", null,
+            h("label", {htmlFor: `${id}-alpaca-key`}, "Alpaca Key: "),
+            h("input", {id: `${id}-alpaca-key`, value: alpacaKey, onInput: e => setAlpacaKey(e.target.value)})
+          ),
+          h("div", null,
+            h("label", {htmlFor: `${id}-alpaca-secret`}, "Alpaca Secret: "),
+            h("input", {id: `${id}-alpaca-secret`, type: "password", value: alpacaSecret, onInput: e => setAlpacaSecret(e.target.value)})
+          ),
+          h("button", {disabled: alpacaConnecting, onClick: onConnectClick}, "Connect")
+        ),
+        alpacaConnected && h("div", null,
+          h("div", null, `Alpaca Account Number: ${alpacaAccountNumber}`),
+          h("div", null, `Alpaca Cash: ${dollars(alpacaCash)}`),
+          h("div", null, `Alpaca Buying Power: ${dollars(alpacaBuyingPower)}`),
+          h("button", {onClick: onDisconnectClick}, "Disconnect")
+        )
+      )
+    }
+
+    function OrderEntry({info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaQuotes, setAlpacaQuotes, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}) {
+      const id = useId()
+      const [quantity, setQuantity] = useState("100")
+      const [orderType, setOrderType] = useState("market")
+      const [limitPrice, setLimitPrice] = useState("0.00")
+      const orderEntrySymbolPrevious = usePrevious(orderEntrySymbol)
+      const orderEntryUnderlyingPrevious = usePrevious(orderEntryUnderlying)
+
+      function onBuyClick() {
+        if (!alpacaConnected) {
+          warn("Alpaca buy order failed; not connected.")
+          return
+        }
+        if (orderEntrySymbol === "") {
+          warn("Alpaca requires buy orders to have a valid symbol.")
+          return
+        }
+        if (quantity === "" || parseFloat(quantity) <= 0) {
+          warn("Alpaca requires buy orders to have a quantity greater than zero.")
+          return
+        }
+        if (orderType === "limit" && (limitPrice === "" || parseFloat(limitPrice) <= 0)) {
+          warn("Alpaca requires buy orders to have a limit price greater than zero.")
+          return
+        }
+        alpacaFetch("POST", "/v2/orders", {
+          time_in_force: "day",
+          extended_hours: orderType === "limit" ? true : undefined,
+          side: "buy",
+          symbol: orderEntrySymbol,
+          type: orderType,
+          qty: quantity,
+          limit_price: orderType === "limit" ? limitPrice : undefined
+        })
+          .then(res => info("Alpaca buy order placed."))
+          .catch(err => warn(`Alpaca buy order failed. ${err}`))
+      }
+
+      function onSellClick() {
+        if (!alpacaConnected) {
+          warn("Alpaca sell order failed; not connected.")
+          return
+        }
+        if (orderEntrySymbol === "") {
+          warn("Alpaca requires sell orders to have a valid symbol.")
+          return
+        }
+        if (quantity === "" || parseFloat(quantity) <= 0) {
+          warn("Alpaca requires sell orders to have a quantity greater than zero.")
+          return
+        }
+        if (orderType === "limit" && (limitPrice === "" || parseFloat(limitPrice) <= 0)) {
+          warn("Alpaca requires sell orders to have a limit price greater than zero.")
+          return
+        }
+        alpacaFetch("POST", "/v2/orders", {
+          time_in_force: "day",
+          extended_hours: orderType === "limit" ? true : undefined,
+          side: "sell",
+          symbol: orderEntrySymbol,
+          type: orderType,
+          qty: quantity,
+          limit_price: orderType === "limit" ? limitPrice : undefined
+        })
+          .then(res => info("Alpaca sell order placed."))
+          .catch(err => warn(`Alpaca sell order failed. ${err}`))
+      }
+
+      function onCancelClick() {
+        if (!alpacaConnected) {
+          warn("Alpaca cancel order failed; not connected.")
+          return
+        }
+        alpacaFetch("DELETE", "/v2/orders")
+          .then(res => info("Alpaca cancelled open orders."))
+          .catch(err => warn(`Alpaca failed to cancel open orders. ${err}`))
+      }
+
+      useEffect(() => {
+        if (!alpacaConnected || !alpacaStocksDataWsAuthenticated) return
+        if (alpacaStocksDataWs.current !== null) {
+          if (orderEntryUnderlyingPrevious !== null) {
+            alpacaStocksDataWs.current.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntryUnderlyingPrevious]}))
+          }
+          if (orderEntryUnderlying !== "") {
+            alpacaStocksDataWs.current.send(JSON.stringify({action: "subscribe", quotes: [orderEntryUnderlying]}))
+          }
+        }
+      }, [alpacaStocksDataWsAuthenticated, orderEntryUnderlying])
+
+      useEffect(() => {
+        if (!alpacaConnected || !alpacaOptionsDataWsAuthenticated) return
+        if (orderEntrySymbolPrevious !== null) {
+          if (orderEntrySymbolPrevious.length > 5) {
+            if (alpacaOptionsDataWs.current !== null) {
+              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbolPrevious]}))
+            }
+          }
+        }
+        if (orderEntrySymbol !== "") {
+          if (orderEntrySymbol.length > 5) {
+            if (alpacaOptionsDataWs.current !== null) {
+              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol]}))
+            }
+          }
+        }
+      }, [alpacaOptionsDataWsAuthenticated, orderEntrySymbol])
+
+      return h("div", null,
+        h("h2", null, "Order Entry"),
+        h("div", null,
+          h("label", {htmlFor: `${id}-symbol`}, "Symbol: "),
+          h("input", {id: `${id}-symbol`, value: orderEntrySymbol, onInput: e => { setOrderEntrySymbol(e.target.value.toUpperCase()); setOrderEntryUnderlying(e.target.value.toUpperCase()) }})
+        ),
+        h("div", null,
+          h("label", {htmlFor: `${id}-quantity`}, "Quantity: "),
+          h("input", {id: `${id}-quantity`, type: "number", min: "0", value: quantity, onInput: e => setQuantity(e.target.value)})
+        ),
+        h("div", null,
+          h("label", {htmlFor: `${id}-order-type`}, "Order Type: "),
+          h("select", {id: `${id}-order-type`, value: orderType, onChange: e => setOrderType(e.target.value)},
+            h("option", {value: "market"}, "Market"),
+            h("option", {value: "limit"}, "Limit")
+          )
+        ),
+        orderType === "limit" && h("div", null,
+          h("label", {htmlFor: `${id}-limit-price`}, "Limit Price: "),
+          h("input", {id: `${id}-limit-price`, type: "number", min: "0", step: "0.01", value: limitPrice, onInput: e => setLimitPrice(e.target.value)})
+        ),
+        h("div", null,
+          h("button", {onClick: onBuyClick}, "Buy"),
+          h("button", {onClick: onSellClick}, "Sell"),
+          h("button", {onClick: onCancelClick}, "Cancel")
+        ),
+        h("div", null,
+          h("h3", null, "NBBO"),
+          orderEntryUnderlying !== "" && alpacaQuotes[orderEntryUnderlying] && h("div", null, `${orderEntryUnderlying}: ${alpacaQuotes[orderEntryUnderlying].bs} ${dollars(alpacaQuotes[orderEntryUnderlying].bp)} x ${alpacaQuotes[orderEntryUnderlying].as} ${dollars(alpacaQuotes[orderEntryUnderlying].ap)}`),
+          orderEntrySymbol !== "" && orderEntrySymbol !== orderEntryUnderlying && alpacaQuotes[orderEntrySymbol] && h("div", null, `${orderEntrySymbol}: ${alpacaQuotes[orderEntrySymbol].bs} ${dollars(alpacaQuotes[orderEntrySymbol].bp)} x ${alpacaQuotes[orderEntrySymbol].as} ${dollars(alpacaQuotes[orderEntrySymbol].ap)}`)
+        )
+      )
+    }
+
+    function Positions({alpacaPositions}) {
+      return h("div", null,
+        h("h2", null, "Positions"),
+        alpacaPositions.map(position => h("div", null, `${upperFirst(position.side)} ${position.qty} ${position.symbol} @ ${dollars(position.avg_entry_price)}`))
+      )
+    }
+
+    function Orders({alpacaOrders}) {
+      return h("div", null,
+        h("h2", null, "Orders"),
+        alpacaOrders.map(order => (order.status === "accepted" || order.status === "new" || order.status === "partially_filled") && h("div", null, `${upperFirst(order.side)} ${order.filled_qty}/${order.qty} ${order.symbol} @ ${order.limit_price !== null ? dollars(order.limit_price) : "MKT"}`))
+      )
+    }
+
+    function Options({info, warn, setOrderEntrySymbol, orderEntryUnderlying, alpacaFetch, alpacaQuotes}) {
+      const id = useId()
+      const [contracts, setContracts] = useState([])
+      const [expirations, setExpirations] = useState([])
+      const [strikes, setStrikes] = useState([])
+      const [expiration, setExpiration] = useState("")
+      const [strike, setStrike] = useState("")
+      const [side, setSide] = useState("call")
+
+      function onRefreshClick() {
+        alpacaFetch("GET", `/v2/options/contracts?underlying_symbols=${orderEntryUnderlying}&expiration_date_gte=${new Date().toISOString().split('T')[0]}&type=${side}&limit=10000`)
+          .then(res => {
+            setContracts(res.option_contracts)
+            info("Alpaca contracts updated.")
+          })
+          .catch(err => warn(`Alpaca failed to retrieve options contracts. ${err}`))
+      }
+
+      function onSendClick() {
+        alpacaFetch("GET", `/v2/options/contracts?underlying_symbols=${orderEntryUnderlying}&expiration_date=${expiration}&type=${side}&strike_price_gte=${strike}&strike_price_lte=${strike}&limit=1`)
+          .then(res => {
+            if (res.option_contracts.length > 0) {
+              setOrderEntrySymbol(res.option_contracts[0].symbol)
+            }
+          })
+          .catch(err => warn(`Alpaca failed to find valid contract. ${err}`))
+      }
+
+      useEffect(() => {
+        const newExpirations = []
+        for (const contract of contracts) {
+          if (!newExpirations.includes(contract.expiration_date)) {
+            newExpirations.push(contract.expiration_date)
+          }
+        }
+        setExpirations(newExpirations)
+        setExpiration(expiration => newExpirations.includes(expiration) ? expiration : newExpirations.length > 0 ? newExpirations[0] : "")
+      }, [contracts, side])
+
+      useEffect(() => {
+        if (expiration === "") return
+        const newStrikes = []
+        for (const contract of contracts) {
+          if (contract.expiration_date === expiration && !newStrikes.includes(contract.strike_price)) {
+            newStrikes.push(contract.strike_price)
+          }
+        }
+        setStrikes(newStrikes)
+        setStrike(strike => newStrikes.length > 0 && alpacaQuotes[orderEntryUnderlying] ? newStrikes.reduce((prev, curr) => Math.abs(curr - alpacaQuotes[orderEntryUnderlying].ap) < Math.abs(prev - alpacaQuotes[orderEntryUnderlying].ap) ? curr : prev) : newStrikes.includes(strike) ? strike : newStrikes.length > 0 ? newStrikes[0] : "")
+      }, [contracts, expiration, side])
+
+      return h("div", null,
+        h("h2", null, "Options"),
+        h("div", null, `Underlying: ${orderEntryUnderlying}`),
+        h("button", {onClick: onRefreshClick}, "Refresh"),
+        h("div", null,
+          h("label", {htmlFor: `${id}-side`}, "Side: "),
+          h("select", {id: `${id}-side`, value: side, onInput: e => setSide(e.target.value)},
+            h("option", {value: "call"}, "Call"),
+            h("option", {value: "put"}, "Put")
+          )
+        ),
+        h("div", null,
+          h("label", {htmlFor: `${id}-expiration`}, "Expiration: "),
+          h("select", {id: `${id}-expiration`, value: expiration, onInput: e => setExpiration(e.target.value)},
+            expirations.map(expiration => h("option", {value: expiration}, expiration))
+          )
+        ),
+        h("div", null,
+          h("label", {htmlFor: `${id}-strike`}, "Strike: "),
+          h("select", {id: `${id}-strike`, value: strike, onInput: e => setStrike(e.target.value)},
+            strikes.map(strike => h("option", {value: strike}, dollars(strike)))
+          )
+        ),
+        h("button", {onClick: onSendClick}, "Send to Order Entry"),
+      )
+    }
+
+    function Log({log}) {
+      return h("div", null,
+        h("h2", null, "Log"),
+        log.map(entry => h("div", null, `${upperFirst(entry.kind)} | ${entry.time.toLocaleTimeString()} | ${entry.text}`))
+      )
+    }
+
+    function App() {
+      const [alpacaPaper, setAlpacaPaper] = useRetainedState("alpaca-paper", true)
+      const [alpacaKey, setAlpacaKey] = useRetainedState("alpaca-key", "")
+      const [alpacaSecret, setAlpacaSecret] = useRetainedState("alpaca-secret", "")
+      const [alpacaConnected, setAlpacaConnected] = useState(false)
+      const [alpacaPositions, setAlpacaPositions] = useState([])
+      const [alpacaQuotes, setAlpacaQuotes] = useState({})
+      const [alpacaOrders, setAlpacaOrders] = useState([])
+      const [alpacaCash, setAlpacaCash] = useState("")
+      const [alpacaBuyingPower, setAlpacaBuyingPower] = useState("")
+      const alpacaTradeUpdateWs = useRef(null)
+      const alpacaStocksDataWs = useRef(null)
+      const alpacaOptionsDataWs = useRef(null)
+      const [log, setLog] = useState([])
+      const [orderEntrySymbol, setOrderEntrySymbol] = useRetainedState("order-entry-symbol", "")
+      const [orderEntryUnderlying, setOrderEntryUnderlying] = useRetainedState("order-entry-underlying", "")
+      const [alpacaStocksDataWsAuthenticated, setAlpacaStocksDataWsAuthenticated] = useState(false)
+      const [alpacaOptionsDataWsAuthenticated, setAlpacaOptionsDataWsAuthenticated] = useState(false)
+
+      function info(text) {
+        setLog(log => [{kind: "info", time: new Date(), text}, ...log])
+      }
+
+      function warn(text) {
+        setLog(log => [{kind: "warn", time: new Date(), text}, ...log])
+      }
+
+      async function alpacaFetch(method, endpoint, body) {
+        const url = alpacaPaper ? "https://paper-api.alpaca.markets" : "https://api.alpaca.markets"
+        const res = await fetch(`${url}${endpoint}`, {
+          method,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "APCA-API-KEY-ID": alpacaKey,
+            "APCA-API-SECRET-KEY": alpacaSecret
+          },
+          body: body !== undefined ? JSON.stringify(body) : undefined
+        })
+        if (!res.ok) throw new Error(res.statusText)
+        return res.json()
+      }
+
+      useEffect(() => {
+        if (alpacaConnected) {
+          const url = alpacaPaper ? "wss://paper-api.alpaca.markets/stream" : "wss://api.alpaca.markets/stream"
+          const ws = new WebSocket(url)
+          ws.onopen = e => {
+            ws.send(JSON.stringify({action: "auth", key: alpacaKey, secret: alpacaSecret}))
+          }
+          ws.onmessage = async e => {
+            const msg = JSON.parse(await e.data.text())
+            if (msg.stream === "authorization") {
+              if (msg.data.status === "authorized") {
+                ws.send(JSON.stringify({action: "listen", data: {streams: ["trade_updates"]}}))
+              }
+            }
+            if (msg.stream === "listening") {
+              info("Alpaca trade updates stream subscribed.")
+            }
+            if (msg.stream === "trade_updates") {
+              const newOrder = msg.data.order
+              setAlpacaOrders(orders => {
+                for (let i = 0; i < orders.length; i++) {
+                  const order = orders[i]
+                  if (order.id === newOrder.id) {
+                    return [...orders.slice(0, i), newOrder, ...orders.slice(i + 1)]
+                  }
+                }
+                return [...orders, newOrder]
+              })
+              if (msg.data.event === "fill" || msg.data.event === "partial_fill") {
+                alpacaFetch("GET", "/v2/account")
+                  .then(res => {
+                    setAlpacaCash(res.cash)
+                    setAlpacaBuyingPower(res.buying_power)
+                  })
+                  .catch(err => warn(`Alpaca failed to update account information. ${err}`))
+                alpacaFetch("GET", "/v2/positions")
+                  .then(res => setAlpacaPositions(res))
+                  .catch(err => warn(`Alpaca failed to retrieve positions. ${err}`))
+              }
+            }
+          }
+          alpacaTradeUpdateWs.current = ws
+        } else {
+          if (alpacaTradeUpdateWs.current !== null) {
+            alpacaTradeUpdateWs.current.close()
+            alpacaTradeUpdateWs.current = null
+            info("Alpaca trade updates stream unsubscribed.")
+          }
+        }
+      }, [alpacaConnected])
+
+      useEffect(() => {
+        if (alpacaConnected) {
+          const ws = new WebSocket("wss://stream.data.alpaca.markets/v2/sip")
+          alpacaStocksDataWs.current = ws
+          ws.onopen = e => {
+            ws.send(JSON.stringify({action: "auth", key: alpacaKey, secret: alpacaSecret}))
+          }
+          ws.onmessage = e => {
+            const msgs = JSON.parse(e.data)
+            for (const msg of msgs) {
+              if (msg.T === "success") {
+                if (msg.msg === "connected") {
+                  info("Alpaca stock data stream authenticated.")
+                  setAlpacaStocksDataWsAuthenticated(true)
+                }
+              }
+              if (msg.T === "q") {
+                setAlpacaQuotes(quotes => ({...quotes, [msg.S]: msg}))
+              }
+            }
+          }
+        } else {
+          setAlpacaStocksDataWsAuthenticated(false)
+          if (alpacaStocksDataWs.current !== null) {
+            alpacaStocksDataWs.current.close()
+            alpacaStocksDataWs.current = null
+            info("Alpaca stock data stream unsubscribed.")
+          }
+        }
+      }, [alpacaConnected])
+
+      useEffect(() => {
+        if (alpacaConnected) {
+          const ws = new WebSocket("wss://stream.data.alpaca.markets/v1beta1/opra")
+          alpacaOptionsDataWs.current = ws
+          ws.onopen = e => {
+            ws.send(encodeMsgpack({action: "auth", key: alpacaKey, secret: alpacaSecret}))
+          }
+          ws.onmessage = async e => {
+            const msgs = decodeMsgpack(await e.data.arrayBuffer())
+            for (const msg of msgs) {
+              if (msg.T === "success") {
+                if (msg.msg === "connected") {
+                  info("Alpaca option data stream authenticated.")
+                  setAlpacaOptionsDataWsAuthenticated(true)
+                }
+              }
+              if (msg.T === "q") {
+                setAlpacaQuotes(quotes => ({...quotes, [msg.S]: msg}))
+              }
+            }
+          }
+        } else {
+          setAlpacaOptionsDataWsAuthenticated(false)
+          if (alpacaOptionsDataWs.current !== null) {
+            alpacaOptionsDataWs.current.close()
+            alpacaOptionsDataWs.current = null
+            info("Alpaca option data stream unsubscribed.")
+          }
+        }
+      }, [alpacaConnected])
+
+      return h("div", null,
+        h("style", null, `
+          :root {
+            color-scheme: dark;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html,
+          body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+          }
+
+          body {
+            min-height: 100vh;
+            background: #191919;
+            color: #f5f5f5;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 14px;
+            line-height: 1.35;
+            display: flex;
+            justify-content: flex-end;
+            overflow: hidden;
+          }
+
+          body > div {
+            width: clamp(600px, 42vw, 800px);
+            height: 100vh;
+            max-height: 100vh;
+            overflow-y: auto;
+            padding: 16px 18px 24px;
+            background: #2b2b2b;
+            border-left: 1px solid #444;
+            box-shadow: -12px 0 28px rgba(0, 0, 0, 0.35);
+          }
+
+          h1,
+          h2,
+          h3 {
+            margin: 0 0 10px;
+            line-height: 1.15;
+          }
+
+          h1 {
+            font-size: 24px;
+            margin-bottom: 16px;
+          }
+
+          h2 {
+            font-size: 17px;
+            padding-top: 12px;
+            margin-top: 12px;
+            border-top: 1px solid #444;
+          }
+
+          h3 {
+            font-size: 15px;
+            margin-top: 12px;
+          }
+
+          label {
+            display: inline-block;
+            min-width: 110px;
+            margin-right: 6px;
+            color: #dddddd;
+          }
+
+          input,
+          select,
+          button {
+            max-width: 100%;
+            font: inherit;
+          }
+
+          input,
+          select {
+            width: min(100%, 320px);
+            padding: 6px 8px;
+            margin: 3px 0 7px;
+            color: #f5f5f5;
+            background: #1f1f1f;
+            border: 1px solid #555;
+            border-radius: 6px;
+          }
+
+          input[type="checkbox"] {
+            width: auto;
+            vertical-align: middle;
+          }
+
+          button {
+            padding: 6px 10px;
+            margin: 4px 6px 4px 0;
+            color: #ffffff;
+            background: #3a3a3a;
+            border: 1px solid #5a5a5a;
+            border-radius: 6px;
+            cursor: pointer;
+          }
+
+          button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          button:hover:not(:disabled),
+          input:focus,
+          select:focus {
+            border-color: #888;
+          }
+
+          body > div > div {
+            margin-bottom: 10px;
+          }
+
+          @media (max-width: 640px) {
+            body {
+              overflow: auto;
+            }
+
+            body > div {
+              width: 100%;
+              min-width: 0;
+            }
+
+            label {
+              display: block;
+              min-width: 0;
+            }
+
+            input,
+            select {
+              width: 100%;
+            }
+          }
+        `),
+        h("h1", null, "WaveDash"),
+        h("div", {style: {color: "red"}}, "This software has no warranty or guarantee. Use at your own risk."),
+        h(Settings),
+        h(Account, {info, warn, alpacaFetch, alpacaPaper, setAlpacaPaper, alpacaKey, setAlpacaKey, alpacaSecret, setAlpacaSecret, alpacaConnected, setAlpacaConnected, alpacaCash, setAlpacaCash, alpacaBuyingPower, setAlpacaBuyingPower, setAlpacaPositions, setAlpacaOrders}),
+        h(OrderEntry, {info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaQuotes, setAlpacaQuotes, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}),
+        h(Positions, {alpacaPositions}),
+        h(Orders, {alpacaOrders}),
+        h(Options, {info, warn, setOrderEntrySymbol, orderEntryUnderlying, alpacaFetch, alpacaQuotes}),
+        h(Log, {log})
+      )
+    }
+
+    render(h(App), document.body)
+  </script>
+</body>
+</html>
