@@ -155,7 +155,7 @@
 
       function onBuyAskOffset() {
         if (alpacaQuotes[orderEntrySymbol]) {
-          transact({side: "buy", kind: "limit", price: (parseFloat(alpacaQuotes[orderEntrySymbol].ap) + parseFloat(offset)).toString()})
+          transact({side: "buy", kind: "limit", price: (parseFloat(alpacaQuotes[orderEntrySymbol].ap) + parseFloat(offset)).toFixed(2)})
         }
       }
 
@@ -167,7 +167,7 @@
 
       function onSellBidOffset() {
         if (alpacaQuotes[orderEntrySymbol]) {
-          transact({side: "sell", kind: "limit", price: (parseFloat(alpacaQuotes[orderEntrySymbol].bp) - parseFloat(offset)).toString()})
+          transact({side: "sell", kind: "limit", price: (parseFloat(alpacaQuotes[orderEntrySymbol].bp) - parseFloat(offset)).toFixed(2)})
         }
       }
 
