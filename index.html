@@ -106,7 +106,7 @@
       )
     }
 
-    function OrderEntry({info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaPositions, alpacaQuotes, setAlpacaQuotes, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}) {
+    function OrderEntry({info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaPositions, alpacaQuotes, setAlpacaQuotes, alpacaTrades, alpacaHaltLevels, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}) {
       const id = useId()
       const [quantity, setQuantity] = useState("100")
       const [orderType, setOrderType] = useState("market")
@@ -200,10 +200,10 @@
         if (!alpacaConnected || !alpacaStocksDataWsAuthenticated) return
         if (alpacaStocksDataWs.current !== null) {
           if (orderEntryUnderlyingPrevious !== null) {
-            alpacaStocksDataWs.current.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntryUnderlyingPrevious]}))
+            alpacaStocksDataWs.current.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntryUnderlyingPrevious], trades: [orderEntryUnderlyingPrevious], lulds: [orderEntryUnderlyingPrevious]}))
           }
           if (orderEntryUnderlying !== "") {
-            alpacaStocksDataWs.current.send(JSON.stringify({action: "subscribe", quotes: [orderEntryUnderlying]}))
+            alpacaStocksDataWs.current.send(JSON.stringify({action: "subscribe", quotes: [orderEntryUnderlying], trades: [orderEntryUnderlying], lulds: [orderEntryUnderlying]}))
           }
         }
       }, [alpacaStocksDataWsAuthenticated, orderEntryUnderlying])
@@ -213,14 +213,14 @@
         if (orderEntrySymbolPrevious !== null) {
           if (orderEntrySymbolPrevious.length > 5) {
             if (alpacaOptionsDataWs.current !== null) {
-              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbolPrevious]}))
+              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbolPrevious], trades: [orderEntrySymbolPrevious]}))
             }
           }
         }
         if (orderEntrySymbol !== "") {
           if (orderEntrySymbol.length > 5) {
             if (alpacaOptionsDataWs.current !== null) {
-              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol]}))
+              alpacaOptionsDataWs.current.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol], trades: [orderEntrySymbol]}))
             }
           }
         }
@@ -268,8 +268,20 @@
         ),
         h("div", null,
           h("h3", null, "NBBO"),
+          alpacaHaltLevels[orderEntryUnderlying] && h("div", null, `LULD ${orderEntryUnderlying}: ${dollars(alpacaHaltLevels[orderEntryUnderlying].u)} / ${dollars(alpacaHaltLevels[orderEntryUnderlying].d)}`),
           orderEntryUnderlying !== "" && alpacaQuotes[orderEntryUnderlying] && h("div", null, `${orderEntryUnderlying}: ${alpacaQuotes[orderEntryUnderlying].bs} ${dollars(alpacaQuotes[orderEntryUnderlying].bp)} x ${alpacaQuotes[orderEntryUnderlying].as} ${dollars(alpacaQuotes[orderEntryUnderlying].ap)}`),
-          orderEntrySymbol !== "" && orderEntrySymbol !== orderEntryUnderlying && alpacaQuotes[orderEntrySymbol] && h("div", null, `${orderEntrySymbol}: ${alpacaQuotes[orderEntrySymbol].bs} ${dollars(alpacaQuotes[orderEntrySymbol].bp)} x ${alpacaQuotes[orderEntrySymbol].as} ${dollars(alpacaQuotes[orderEntrySymbol].ap)}`)
+          orderEntrySymbol !== "" && orderEntrySymbol !== orderEntryUnderlying && alpacaQuotes[orderEntrySymbol] && h("div", null, `${orderEntrySymbol}: ${alpacaQuotes[orderEntrySymbol].bs} ${dollars(alpacaQuotes[orderEntrySymbol].bp)} x ${alpacaQuotes[orderEntrySymbol].as} ${dollars(alpacaQuotes[orderEntrySymbol].ap)}`),
+          h("h3", null, "Time & Sales"),
+          h("div", {style: {display: "flex", justifyContent: "space-between", width: "100%", maxHeight: "200px", overflow: "auto"}},
+            orderEntrySymbol !== orderEntryUnderlying && h("div", null,
+              h("div", null, orderEntrySymbol),
+              alpacaTrades[orderEntrySymbol] && alpacaTrades[orderEntrySymbol].map(trade => h("div", null, `${dollars(trade.p)} ${trade.s} ${new Date(trade.t).toLocaleTimeString()}`)),
+            ),
+            h("div", null,
+              h("div", null, orderEntryUnderlying),
+              alpacaTrades[orderEntryUnderlying] && alpacaTrades[orderEntryUnderlying].map(trade => h("div", null, `${dollars(trade.p)} ${trade.s} ${new Date(trade.t).toLocaleTimeString()}`)),
+            ),
+          )
         )
       )
     }
@@ -380,6 +392,8 @@
       const [alpacaConnected, setAlpacaConnected] = useState(false)
       const [alpacaPositions, setAlpacaPositions] = useState([])
       const [alpacaQuotes, setAlpacaQuotes] = useState({})
+      const [alpacaTrades, setAlpacaTrades] = useState({})
+      const [alpacaHaltLevels, setAlpacaHaltLevels] = useState({})
       const [alpacaOrders, setAlpacaOrders] = useState([])
       const [alpacaCash, setAlpacaCash] = useState("")
       const [alpacaBuyingPower, setAlpacaBuyingPower] = useState("")
@@ -485,6 +499,12 @@
               }
               if (msg.T === "q") {
                 setAlpacaQuotes(quotes => ({...quotes, [msg.S]: msg}))
+              }
+              if (msg.T === "t") {
+                setAlpacaTrades(trades => ({...trades, [msg.S]: [msg, ...trades[msg.S]].slice(0, 30)}))
+              }
+              if (msg.T === "l") {
+                setAlpacaHaltLevels(haltLevels => ({...haltLevels, [msg.S]: msg}))
               }
             }
           }
@@ -673,7 +693,7 @@
         h("div", {style: {color: "red"}}, "This software has no warranty or guarantee. Use at your own risk."),
         h(Settings),
         h(Account, {info, warn, alpacaFetch, alpacaPaper, setAlpacaPaper, alpacaKey, setAlpacaKey, alpacaSecret, setAlpacaSecret, alpacaConnected, setAlpacaConnected, alpacaCash, setAlpacaCash, alpacaBuyingPower, setAlpacaBuyingPower, setAlpacaPositions, setAlpacaOrders}),
-        h(OrderEntry, {info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaPositions, alpacaQuotes, setAlpacaQuotes, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}),
+        h(OrderEntry, {info, warn, orderEntrySymbol, setOrderEntrySymbol, orderEntryUnderlying, setOrderEntryUnderlying, alpacaFetch, alpacaConnected, alpacaPositions, alpacaQuotes, setAlpacaQuotes, alpacaTrades, alpacaHaltLevels, alpacaStocksDataWs, alpacaOptionsDataWs, alpacaStocksDataWsAuthenticated, alpacaOptionsDataWsAuthenticated}),
         h(Positions, {alpacaPositions}),
         h(Orders, {alpacaOrders}),
         h(Options, {info, warn, setOrderEntrySymbol, orderEntryUnderlying, alpacaFetch, alpacaQuotes}),
