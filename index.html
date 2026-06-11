@@ -501,7 +501,7 @@
                 setAlpacaQuotes(quotes => ({...quotes, [msg.S]: msg}))
               }
               if (msg.T === "t") {
-                setAlpacaTrades(trades => ({...trades, [msg.S]: [msg, ...trades[msg.S]].slice(0, 30)}))
+                setAlpacaTrades(trades => ({...trades, [msg.S]: [msg, ...(trades[msg.S] ?? [])].slice(0, 30)}))
               }
               if (msg.T === "l") {
                 setAlpacaHaltLevels(haltLevels => ({...haltLevels, [msg.S]: msg}))
