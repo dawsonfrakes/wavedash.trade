@@ -5,10 +5,399 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WaveDash</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #13051f;
+      --panel: rgb(29 10 55 / 0.78);
+      --panel-strong: rgb(45 16 82 / 0.9);
+      --text: #fff5ff;
+      --muted: rgb(255 229 255 / 0.76);
+      --pink: #ff4fd8;
+      --magenta: #ff2f92;
+      --purple: #8b5cf6;
+      --cyan: #33f3ff;
+      --sun: #ffb347;
+      --peach: #ff7a7a;
+      --buy: #19f58d;
+      --sell: #ff355e;
+      --ink: #16071f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 50% 14%, rgb(255 179 71 / 0.4) 0 5rem, rgb(255 79 216 / 0.24) 5.2rem 10rem, transparent 10.2rem),
+        radial-gradient(circle at 16% 12%, rgb(51 243 255 / 0.28), transparent 22rem),
+        radial-gradient(circle at 88% 8%, rgb(255 47 146 / 0.28), transparent 23rem),
+        linear-gradient(180deg, #1b0c3d 0%, #2a1055 35%, #12051f 72%, #07020d 100%);
+      background-attachment: fixed;
+    }
+
     body {
-      background-color: #333333;
+      width: min(100%, 430px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 22px 16px 34px;
+      background:
+        linear-gradient(180deg, rgb(37 13 73 / 0.9), rgb(20 6 40 / 0.96) 42%, rgb(11 3 21 / 0.98)),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.12),
+        0 0 80px rgb(255 79 216 / 0.26),
+        0 28px 120px rgb(51 243 255 / 0.14);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: auto 0 0;
+      width: min(100%, 430px);
+      height: 44vh;
+      margin: 0 auto;
+      pointer-events: none;
+      background:
+        linear-gradient(rgb(51 243 255 / 0.28) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 79 216 / 0.22) 1px, transparent 1px);
+      background-size: 100% 26px, 34px 100%;
+      transform: perspective(280px) rotateX(64deg) translateY(34%);
+      transform-origin: bottom center;
+      opacity: 0.58;
+      mask-image: linear-gradient(to top, black, transparent 88%);
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      width: min(100%, 430px);
+      margin: 0 auto;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(180deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 5px),
+        linear-gradient(90deg, transparent, rgb(255 79 216 / 0.08), transparent);
+      mix-blend-mode: screen;
+      opacity: 0.55;
+      z-index: 2;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    h1 {
+      padding: 6px 0 21px;
+      font-size: clamp(2.45rem, 14vw, 3.55rem);
+      letter-spacing: -0.08em;
+      font-weight: 950;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #fff9b8 0%, var(--sun) 22%, var(--pink) 54%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-stroke: 1px rgb(255 255 255 / 0.22);
+      text-shadow:
+        3px 3px 0 rgb(51 243 255 / 0.45),
+        -3px -2px 0 rgb(255 47 146 / 0.36),
+        0 0 26px rgb(255 79 216 / 0.5);
+    }
+
+    h1::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 6px;
+      margin-top: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink), var(--sun), var(--purple));
+      box-shadow: 0 0 20px rgb(255 79 216 / 0.48), 0 0 30px rgb(51 243 255 / 0.28);
+    }
+
+    h2 {
+      margin-top: 21px;
+      padding-top: 20px;
+      border-top: 1px solid rgb(255 255 255 / 0.16);
+      font-size: 1.26rem;
+      font-weight: 950;
+      letter-spacing: 0.02em;
+      color: #fff7ff;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0 rgb(255 47 146 / 0.35), 0 0 18px rgb(51 243 255 / 0.24);
+    }
+
+    h3 {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: #fff9b8;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 950;
+      text-shadow: 0 0 12px rgb(255 179 71 / 0.34);
+    }
+
+    body > div {
+      margin-top: 12px;
+      padding: 15px;
+      border: 1px solid rgb(255 255 255 / 0.16);
+      border-radius: 24px;
+      background:
+        linear-gradient(145deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.045)),
+        linear-gradient(180deg, rgb(58 18 91 / 0.78), rgb(24 8 48 / 0.86));
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.22),
+        0 16px 38px rgb(0 0 0 / 0.32),
+        0 0 24px rgb(255 79 216 / 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    body > button,
+    body > div button {
+      width: 100%;
+    }
+
+    body > button {
+      margin-top: 10px;
+    }
+
+    body > div > div + div,
+    body > div > button,
+    body > div > div > button,
+    body > div > div > div + div,
+    body > div > div > button + button {
+      margin-top: 11px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 0.77rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+    }
+
+    label[for="alpaca-paper"] {
+      display: inline;
+      margin: 0 8px 0 0;
+      vertical-align: middle;
+    }
+
+    input,
+    select,
+    button {
+      min-height: 46px;
+      border-radius: 15px;
+      font: inherit;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgb(51 243 255 / 0.34);
+      background: rgb(13 4 29 / 0.76);
+      color: var(--text);
+      padding: 11px 13px;
+      outline: none;
+      box-shadow:
+        inset 0 0 0 1px rgb(255 255 255 / 0.05),
+        0 0 18px rgb(51 243 255 / 0.08);
+    }
+
+    input[type="checkbox"] {
+      width: 23px;
+      min-height: 23px;
+      accent-color: var(--pink);
+      filter: drop-shadow(0 0 8px rgb(255 79 216 / 0.55));
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--sun);
+      box-shadow:
+        0 0 0 4px rgb(255 179 71 / 0.16),
+        0 0 26px rgb(255 79 216 / 0.20);
+    }
+
+    button {
+      border: 1px solid rgb(255 255 255 / 0.22);
+      background: linear-gradient(135deg, var(--cyan), var(--pink) 52%, var(--sun));
+      color: #15051f;
+      padding: 11px 15px;
+      font-weight: 950;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      cursor: pointer;
+      touch-action: manipulation;
+      box-shadow:
+        0 10px 22px rgb(255 79 216 / 0.20),
+        0 0 20px rgb(51 243 255 / 0.16),
+        inset 0 1px 0 rgb(255 255 255 / 0.46);
+      transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.18) brightness(1.04);
+      box-shadow:
+        0 14px 26px rgb(255 79 216 / 0.25),
+        0 0 30px rgb(51 243 255 / 0.18),
+        inset 0 1px 0 rgb(255 255 255 / 0.52);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.56;
+      filter: grayscale(0.45);
+    }
+
+    button + button {
+      margin-left: 0;
+    }
+
+    #order-entry-buy {
+      background: linear-gradient(135deg, #c8ffd9, var(--buy) 44%, #00c875);
+      color: #02190c;
+      box-shadow:
+        0 12px 24px rgb(25 245 141 / 0.24),
+        0 0 24px rgb(25 245 141 / 0.24),
+        inset 0 1px 0 rgb(255 255 255 / 0.54);
+    }
+
+    #order-entry-sell {
+      background: linear-gradient(135deg, #ffd0d8, var(--sell) 45%, #b90035);
       color: white;
-      font-family: sans-serif;
+      text-shadow: 0 1px 0 rgb(0 0 0 / 0.32);
+      box-shadow:
+        0 12px 24px rgb(255 53 94 / 0.24),
+        0 0 24px rgb(255 53 94 / 0.24),
+        inset 0 1px 0 rgb(255 255 255 / 0.48);
+    }
+
+    #order-entry-cancel,
+    #alpaca-disconnect {
+      background: linear-gradient(135deg, #ff6f91, var(--magenta), #7d2cff);
+      color: white;
+      text-shadow: 0 1px 0 rgb(0 0 0 / 0.28);
+    }
+
+    #positions:empty,
+    #orders:empty,
+    #log-entries:empty,
+    #nbbo-symbol:empty,
+    #nbbo-underlying:empty {
+      display: none;
+    }
+
+    #positions > div,
+    #orders > div,
+    #log-entries > div,
+    #nbbo-symbol,
+    #nbbo-underlying {
+      overflow-wrap: anywhere;
+      padding: 11px 0;
+      border-bottom: 1px solid rgb(255 255 255 / 0.12);
+    }
+
+    #nbbo-symbol,
+    #nbbo-underlying {
+      color: var(--cyan);
+      font-weight: 850;
+      text-shadow: 0 0 14px rgb(51 243 255 / 0.26);
+    }
+
+    #positions > div:last-child,
+    #orders > div:last-child,
+    #log-entries > div:last-child {
+      border-bottom: 0;
+    }
+
+    #positions > div,
+    #orders > div {
+      font-weight: 750;
+    }
+
+    #log-entries {
+      max-height: 320px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--cyan) rgb(255 255 255 / 0.08);
+      border-color: rgb(51 243 255 / 0.28);
+      background:
+        linear-gradient(180deg, rgb(255 79 216 / 0.12), rgb(51 243 255 / 0.07)),
+        rgb(10 3 23 / 0.9);
+    }
+
+    #log-entries::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    #log-entries::-webkit-scrollbar-track {
+      background: rgb(255 255 255 / 0.08);
+      border-radius: 999px;
+    }
+
+    #log-entries::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--cyan), var(--pink));
+      border-radius: 999px;
+    }
+
+    #log-entries > div {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      color: rgb(255 245 255 / 0.9);
+    }
+
+    #alpaca-connected > div:first-child,
+    #alpaca-connected > div:nth-child(2),
+    #alpaca-connected > div:nth-child(3),
+    #options-contracts > div:first-child {
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    #alpaca-account-number,
+    #alpaca-cash,
+    #alpaca-buying-power,
+    #options-underlying {
+      color: #fff9b8;
+      font-weight: 950;
+      text-shadow: 0 0 12px rgb(255 179 71 / 0.28);
+    }
+
+    @media (max-width: 430px) {
+      html {
+        background:
+          radial-gradient(circle at 50% 11%, rgb(255 179 71 / 0.32) 0 5rem, rgb(255 79 216 / 0.18) 5.2rem 9rem, transparent 9.2rem),
+          linear-gradient(180deg, #1b0c3d 0%, #2a1055 35%, #12051f 72%, #07020d 100%);
+      }
+
+      body {
+        width: 100%;
+        box-shadow: none;
+      }
     }
   </style>
 </head>
