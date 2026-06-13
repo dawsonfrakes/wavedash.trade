@@ -97,25 +97,11 @@
   <h2>Log</h2>
   <div id="log-entries"></div>
   <script type="module">
+    import {e, useState, useRetainedState} from "https://esm.sh/gh/dawsonfrakes/deact/deact.mjs"
     import {encode as encodeMsgpack, decode as decodeMsgpack} from "https://esm.sh/@msgpack/msgpack"
 
-    const e = name => window[name]
     const upperFirst = text => text.slice(0, 1).toUpperCase() + text.slice(1)
     const dollars = text => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(text)
-    const useState = _val => ({
-      _val,
-      _subs: [],
-      oldVal: undefined,
-      get val() { return this._val },
-      set val(newValue) { this.oldVal = this._val; this._val = newValue; this._subs.forEach(f => f()) },
-      sub(f) { this._subs.push(f); f() },
-    })
-    const useRetainedState = (name, defaultValue) => {
-      const oldValue = localStorage.getItem(name)
-      const state = useState(oldValue !== null ? JSON.parse(oldValue) : defaultValue)
-      state.sub(() => localStorage.setItem(name, JSON.stringify(state.val)))
-      return state
-    }
 
     const alpacaPaper = useRetainedState("alpaca-paper", true)
     const alpacaKey = useRetainedState("alpaca-key", "")
