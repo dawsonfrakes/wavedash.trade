@@ -7,20 +7,23 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #13051f;
-      --panel: rgb(29 10 55 / 0.78);
-      --panel-strong: rgb(45 16 82 / 0.9);
-      --text: #fff5ff;
-      --muted: rgb(255 229 255 / 0.76);
-      --pink: #ff4fd8;
-      --magenta: #ff2f92;
-      --purple: #8b5cf6;
-      --cyan: #33f3ff;
-      --sun: #ffb347;
-      --peach: #ff7a7a;
-      --buy: #19f58d;
-      --sell: #ff355e;
-      --ink: #16071f;
+      --bg: #182230;
+      --page: #111923;
+      --panel: #202b38;
+      --panel-alt: #253241;
+      --line: #3b4a5b;
+      --line-soft: #2f3b49;
+      --text: #e3e9ef;
+      --muted: #9aa8b6;
+      --heading: #c7d7e6;
+      --accent: #6f91b5;
+      --field: #141d28;
+      --buy: #13845b;
+      --buy-border: #1fa978;
+      --sell: #a63a3a;
+      --sell-border: #c94e4e;
+      --hot: #59626c;
+      --hot-border: #747e89;
     }
 
     * {
@@ -28,326 +31,289 @@
     }
 
     html {
-      min-height: 100%;
-      background:
-        radial-gradient(circle at 50% 14%, rgb(255 179 71 / 0.4) 0 5rem, rgb(255 79 216 / 0.24) 5.2rem 10rem, transparent 10.2rem),
-        radial-gradient(circle at 16% 12%, rgb(51 243 255 / 0.28), transparent 22rem),
-        radial-gradient(circle at 88% 8%, rgb(255 47 146 / 0.28), transparent 23rem),
-        linear-gradient(180deg, #1b0c3d 0%, #2a1055 35%, #12051f 72%, #07020d 100%);
-      background-attachment: fixed;
+      background: var(--page);
     }
 
     body {
-      width: min(100%, 430px);
       min-height: 100vh;
+      max-width: 600px;
       margin: 0 auto;
-      padding: 22px 16px 34px;
-      background:
-        linear-gradient(180deg, rgb(37 13 73 / 0.9), rgb(20 6 40 / 0.96) 42%, rgb(11 3 21 / 0.98)),
-        var(--bg);
+      padding: 20px;
+      background: var(--bg);
       color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.45;
-      box-shadow:
-        0 0 0 1px rgb(255 255 255 / 0.12),
-        0 0 80px rgb(255 79 216 / 0.26),
-        0 28px 120px rgb(51 243 255 / 0.14);
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: auto 0 0;
-      width: min(100%, 430px);
-      height: 44vh;
-      margin: 0 auto;
-      pointer-events: none;
-      background:
-        linear-gradient(rgb(51 243 255 / 0.28) 1px, transparent 1px),
-        linear-gradient(90deg, rgb(255 79 216 / 0.22) 1px, transparent 1px);
-      background-size: 100% 26px, 34px 100%;
-      transform: perspective(280px) rotateX(64deg) translateY(34%);
-      transform-origin: bottom center;
-      opacity: 0.58;
-      mask-image: linear-gradient(to top, black, transparent 88%);
-      z-index: 0;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      width: min(100%, 430px);
-      margin: 0 auto;
-      pointer-events: none;
-      background:
-        repeating-linear-gradient(180deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 5px),
-        linear-gradient(90deg, transparent, rgb(255 79 216 / 0.08), transparent);
-      mix-blend-mode: screen;
-      opacity: 0.55;
-      z-index: 2;
-    }
-
-    body > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    h1,
-    h2,
-    h3 {
-      margin: 0;
-      line-height: 1.15;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      line-height: 1.4;
     }
 
     h1 {
-      padding: 6px 0 21px;
-      font-size: clamp(2.45rem, 14vw, 3.55rem);
-      letter-spacing: -0.08em;
-      font-weight: 950;
-      text-transform: uppercase;
-      background: linear-gradient(180deg, #fff9b8 0%, var(--sun) 22%, var(--pink) 54%, var(--cyan) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      -webkit-text-stroke: 1px rgb(255 255 255 / 0.22);
-      text-shadow:
-        3px 3px 0 rgb(51 243 255 / 0.45),
-        -3px -2px 0 rgb(255 47 146 / 0.36),
-        0 0 26px rgb(255 79 216 / 0.5);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 20px;
+      padding: 14px 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: #f1f6fb;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
     }
 
-    h1::after {
-      content: "";
-      display: block;
-      width: 100%;
-      height: 6px;
-      margin-top: 12px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--cyan), var(--pink), var(--sun), var(--purple));
-      box-shadow: 0 0 20px rgb(255 79 216 / 0.48), 0 0 30px rgb(51 243 255 / 0.28);
+    h1 .logo-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #5f7892;
+      background: #243448;
+      color: #d8e8f7;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      line-height: 1;
+    }
+
+    h1 .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1;
+    }
+
+    h1 .logo-name {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 .logo-tagline {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h2,
+    h3 {
+      margin: 0;
+      font-weight: 700;
     }
 
     h2 {
-      margin-top: 21px;
-      padding-top: 20px;
-      border-top: 1px solid rgb(255 255 255 / 0.16);
-      font-size: 1.26rem;
-      font-weight: 950;
-      letter-spacing: 0.02em;
-      color: #fff7ff;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--heading);
+      font-size: 0.9rem;
       text-transform: uppercase;
-      text-shadow: 2px 2px 0 rgb(255 47 146 / 0.35), 0 0 18px rgb(51 243 255 / 0.24);
+      letter-spacing: 0.04em;
     }
 
     h3 {
-      margin-top: 18px;
-      font-size: 0.8rem;
-      color: #fff9b8;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-weight: 950;
-      text-shadow: 0 0 12px rgb(255 179 71 / 0.34);
+      color: #b8c9d9;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
     }
 
     body > div {
-      margin-top: 12px;
-      padding: 15px;
-      border: 1px solid rgb(255 255 255 / 0.16);
-      border-radius: 24px;
-      background:
-        linear-gradient(145deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.045)),
-        linear-gradient(180deg, rgb(58 18 91 / 0.78), rgb(24 8 48 / 0.86));
-      box-shadow:
-        inset 0 1px 0 rgb(255 255 255 / 0.22),
-        0 16px 38px rgb(0 0 0 / 0.32),
-        0 0 24px rgb(255 79 216 / 0.12);
-      backdrop-filter: blur(16px);
+      margin: 0 0 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--panel);
     }
 
-    body > button,
-    body > div button {
-      width: 100%;
-    }
-
-    body > button {
-      margin-top: 10px;
-    }
-
-    body > div > div + div,
+    body > div > div,
     body > div > button,
-    body > div > div > button,
-    body > div > div > div + div,
-    body > div > div > button + button {
-      margin-top: 11px;
+    body > div > div > div,
+    body > div > div > button {
+      margin-top: 14px;
     }
 
     label {
       display: block;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
       color: var(--muted);
-      font-size: 0.77rem;
-      font-weight: 900;
+      font-size: 0.8rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.11em;
-    }
-
-    label[for="alpaca-paper"] {
-      display: inline;
-      margin: 0 8px 0 0;
-      vertical-align: middle;
+      letter-spacing: 0.03em;
     }
 
     input,
     select,
     button {
-      min-height: 46px;
-      border-radius: 15px;
+      width: 100%;
+      min-height: 40px;
+      border-radius: 0;
       font: inherit;
     }
 
     input,
     select {
-      width: 100%;
-      border: 1px solid rgb(51 243 255 / 0.34);
-      background: rgb(13 4 29 / 0.76);
+      border: 1px solid var(--line);
+      background: var(--field);
       color: var(--text);
-      padding: 11px 13px;
+      padding: 9px 10px;
       outline: none;
-      box-shadow:
-        inset 0 0 0 1px rgb(255 255 255 / 0.05),
-        0 0 18px rgb(51 243 255 / 0.08);
-    }
-
-    input[type="checkbox"] {
-      width: 23px;
-      min-height: 23px;
-      accent-color: var(--pink);
-      filter: drop-shadow(0 0 8px rgb(255 79 216 / 0.55));
     }
 
     input:focus,
     select:focus {
-      border-color: var(--sun);
-      box-shadow:
-        0 0 0 4px rgb(255 179 71 / 0.16),
-        0 0 26px rgb(255 79 216 / 0.20);
+      border-color: var(--accent);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      min-height: 0;
+      margin: 0;
+      accent-color: var(--accent);
+      vertical-align: middle;
+    }
+
+    label[for="account-alpaca-paper"] {
+      display: inline-block;
+      margin: 0 8px 0 0;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
     button {
-      border: 1px solid rgb(255 255 255 / 0.22);
-      background: linear-gradient(135deg, var(--cyan), var(--pink) 52%, var(--sun));
-      color: #15051f;
-      padding: 11px 15px;
-      font-weight: 950;
-      letter-spacing: 0.01em;
-      text-transform: uppercase;
+      border: 1px solid #52687f;
+      border-radius: 3px;
+      background: #33475c;
+      color: #ffffff;
+      padding: 10px 12px;
+      font-weight: 700;
       cursor: pointer;
-      touch-action: manipulation;
-      box-shadow:
-        0 10px 22px rgb(255 79 216 / 0.20),
-        0 0 20px rgb(51 243 255 / 0.16),
-        inset 0 1px 0 rgb(255 255 255 / 0.46);
-      transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      transition: background-color 100ms ease, border-color 100ms ease;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.18) brightness(1.04);
-      box-shadow:
-        0 14px 26px rgb(255 79 216 / 0.25),
-        0 0 30px rgb(51 243 255 / 0.18),
-        inset 0 1px 0 rgb(255 255 255 / 0.52);
-    }
-
-    button:active {
-      transform: translateY(1px) scale(0.99);
+    button:hover:not(:disabled) {
+      border-color: #7f9aba;
+      background: #3d5570;
     }
 
     button:disabled {
       cursor: not-allowed;
-      opacity: 0.56;
-      filter: grayscale(0.45);
+      opacity: 0.55;
     }
 
-    button + button {
-      margin-left: 0;
+    div:has(> #order-entry-buy + #order-entry-sell) {
+      display: flex;
+      gap: 8px;
+    }
+
+    #order-entry-buy,
+    #order-entry-sell {
+      flex: 1 1 0;
+      width: calc(50% - 4px);
+      min-height: 46px;
+      font-size: 1rem;
     }
 
     #order-entry-buy {
-      background: linear-gradient(135deg, #c8ffd9, var(--buy) 44%, #00c875);
-      color: #02190c;
-      box-shadow:
-        0 12px 24px rgb(25 245 141 / 0.24),
-        0 0 24px rgb(25 245 141 / 0.24),
-        inset 0 1px 0 rgb(255 255 255 / 0.54);
+      border-color: var(--buy-border);
+      background: var(--buy);
+    }
+
+    #order-entry-buy:hover:not(:disabled) {
+      background: #179568;
+      border-color: #32bd8b;
     }
 
     #order-entry-sell {
-      background: linear-gradient(135deg, #ffd0d8, var(--sell) 45%, #b90035);
-      color: white;
-      text-shadow: 0 1px 0 rgb(0 0 0 / 0.32);
-      box-shadow:
-        0 12px 24px rgb(255 53 94 / 0.24),
-        0 0 24px rgb(255 53 94 / 0.24),
-        inset 0 1px 0 rgb(255 255 255 / 0.48);
+      border-color: var(--sell-border);
+      background: var(--sell);
     }
 
-    #order-entry-cancel,
-    #alpaca-disconnect {
-      background: linear-gradient(135deg, #ff6f91, var(--magenta), #7d2cff);
-      color: white;
-      text-shadow: 0 1px 0 rgb(0 0 0 / 0.28);
+    #order-entry-sell:hover:not(:disabled) {
+      background: #b84646;
+      border-color: #db6868;
     }
 
-    #positions:empty,
-    #orders:empty,
-    #log-entries:empty,
-    #nbbo-symbol:empty,
-    #nbbo-underlying:empty {
+    #order-entry-cancel {
+      border-color: var(--hot-border);
+      background: var(--hot);
+    }
+
+    #order-entry-cancel:hover:not(:disabled) {
+      background: #666f7a;
+      border-color: #8c96a2;
+    }
+
+    #settings-clear-local-storage,
+    #account-alpaca-disconnect {
+      border-color: #687a8e;
+      background: #3b4e62;
+    }
+
+    #account-alpaca-connect {
+      margin-top: 20px;
+      padding-top: 12px;
+    }
+
+    #account-alpaca-connected,
+    #order-entry-nbbo-symbol,
+    #order-entry-nbbo-underlying,
+    #positions-alpaca,
+    #orders-alpaca,
+    #options-contracts,
+    #log-entries {
+      padding: 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: 0;
+      background: #18212c;
+    }
+
+    #order-entry-nbbo-symbol,
+    #order-entry-nbbo-underlying {
+      color: #cbd8e5;
+      font-weight: 700;
+    }
+
+    #order-entry-nbbo-symbol:empty,
+    #order-entry-nbbo-underlying:empty,
+    #positions-alpaca:empty,
+    #orders-alpaca:empty,
+    #log-entries:empty {
       display: none;
     }
 
-    #positions > div,
-    #orders > div,
-    #log-entries > div,
-    #nbbo-symbol,
-    #nbbo-underlying {
+    #positions-alpaca > div,
+    #orders-alpaca > div,
+    #log-entries > div {
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--muted);
       overflow-wrap: anywhere;
-      padding: 11px 0;
-      border-bottom: 1px solid rgb(255 255 255 / 0.12);
     }
 
-    #nbbo-symbol,
-    #nbbo-underlying {
-      color: var(--cyan);
-      font-weight: 850;
-      text-shadow: 0 0 14px rgb(51 243 255 / 0.26);
-    }
-
-    #positions > div:last-child,
-    #orders > div:last-child,
+    #positions-alpaca > div:last-child,
+    #orders-alpaca > div:last-child,
     #log-entries > div:last-child {
       border-bottom: 0;
     }
 
-    #positions > div,
-    #orders > div {
-      font-weight: 750;
+
+    body > div > div + div,
+    body > div > div > div + div {
+      margin-top: 14px;
+    }
+
+    #account-alpaca-disconnected > div,
+    #options-contracts > div {
+      margin-top: 14px;
     }
 
     #log-entries {
-      max-height: 320px;
+      max-height: 170px;
       overflow-y: auto;
-      overscroll-behavior: contain;
       scrollbar-width: thin;
-      scrollbar-color: var(--cyan) rgb(255 255 255 / 0.08);
-      border-color: rgb(51 243 255 / 0.28);
-      background:
-        linear-gradient(180deg, rgb(255 79 216 / 0.12), rgb(51 243 255 / 0.07)),
-        rgb(10 3 23 / 0.9);
+      scrollbar-color: var(--line) var(--field);
     }
 
     #log-entries::-webkit-scrollbar {
@@ -355,85 +321,69 @@
     }
 
     #log-entries::-webkit-scrollbar-track {
-      background: rgb(255 255 255 / 0.08);
-      border-radius: 999px;
+      background: var(--field);
     }
 
     #log-entries::-webkit-scrollbar-thumb {
-      background: linear-gradient(var(--cyan), var(--pink));
-      border-radius: 999px;
+      background: var(--line);
+      border: 2px solid var(--field);
     }
 
-    #log-entries > div {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.82rem;
-      color: rgb(255 245 255 / 0.9);
-    }
-
-    #alpaca-connected > div:first-child,
-    #alpaca-connected > div:nth-child(2),
-    #alpaca-connected > div:nth-child(3),
-    #options-contracts > div:first-child {
-      color: var(--muted);
-      font-weight: 750;
-    }
-
-    #alpaca-account-number,
-    #alpaca-cash,
-    #alpaca-buying-power,
-    #options-underlying {
-      color: #fff9b8;
-      font-weight: 950;
-      text-shadow: 0 0 12px rgb(255 179 71 / 0.28);
-    }
-
-    @media (max-width: 430px) {
-      html {
-        background:
-          radial-gradient(circle at 50% 11%, rgb(255 179 71 / 0.32) 0 5rem, rgb(255 79 216 / 0.18) 5.2rem 9rem, transparent 9.2rem),
-          linear-gradient(180deg, #1b0c3d 0%, #2a1055 35%, #12051f 72%, #07020d 100%);
-      }
-
+    @media (max-width: 420px) {
       body {
-        width: 100%;
-        box-shadow: none;
+        padding: 12px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>WaveDash</h1>
-  <h2>Account</h2>
-  <div id="alpaca-disconnected">
-    <div>
-      <label for="alpaca-paper">Alpaca Paper: </label>
-      <input id="alpaca-paper" type="checkbox"></input>
-    </div>
-    <div>
-      <label for="alpaca-key">Alpaca Key: </label>
-      <input id="alpaca-key"></input>
-    </div>
-    <div>
-      <label for="alpaca-secret">Alpaca Secret: </label>
-      <input id="alpaca-secret" type="password"></input>
-    </div>
-    <button id="alpaca-connect">Alpaca Connect</button>
-  </div>
-  <div id="alpaca-connected">
-    <div>Alpaca Account Number: <span id="alpaca-account-number"></span></div>
-    <div>Alpaca Cash: <span id="alpaca-cash"></span></div>
-    <div>Alpaca Buying Power: <span id="alpaca-buying-power"></span></div>
-    <button id="alpaca-disconnect">Alpaca Disconnect</button>
-  </div>
-  <h2>Order Entry</h2>
+  <h1 aria-label="WaveDash">
+    <span class="logo-mark" aria-hidden="true">WD</span>
+    <span class="logo-text">
+      <span class="logo-name">WaveDash</span>
+      <span class="logo-tagline">Trading Console</span>
+    </span>
+  </h1>
   <div>
+    <h2>Settings</h2>
+    <button id="settings-clear-local-storage">Clear Local Storage</button>
+  </div>
+  <div>
+    <h2>Account</h2>
+    <div>
+      <h3>Alpaca</h3>
+      <div id="account-alpaca-disconnected">
+        <div>
+          <label for="account-alpaca-paper">Paper: </label>
+          <input id="account-alpaca-paper" type="checkbox">
+        </div>
+        <div>
+          <label for="account-alpaca-key">Key: </label>
+          <input id="account-alpaca-key">
+        </div>
+        <div>
+          <label for="account-alpaca-secret">Secret: </label>
+          <input id="account-alpaca-secret" type="password">
+        </div>
+        <button id="account-alpaca-connect">Connect</button>
+      </div>
+      <div id="account-alpaca-connected">
+        <div>Account Number: <span id="account-alpaca-account-number"></span></div>
+        <div>Cash: <span id="account-alpaca-cash"></span></div>
+        <div>Buying Power: <span id="account-alpaca-buying-power"></span></div>
+        <button id="account-alpaca-disconnect">Disconnect</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h2>Order Entry</h2>
     <div>
       <label for="order-entry-symbol">Symbol: </label>
-      <input id="order-entry-symbol"></input>
+      <input id="order-entry-symbol">
     </div>
     <div>
       <label for="order-entry-quantity">Quantity: </label>
-      <input id="order-entry-quantity" type="number" min="0"></input>
+      <input id="order-entry-quantity" type="number" min="0">
     </div>
     <div>
       <label for="order-entry-order-type">Order Type: </label>
@@ -444,118 +394,144 @@
     </div>
     <div id="order-entry-limit">
       <label for="order-entry-limit-price">Limit Price: </label>
-      <input id="order-entry-limit-price" type="number" min="0" step="0.01"></input>
+      <input id="order-entry-limit-price" type="number" min="0" step="0.01">
     </div>
     <div>
       <button id="order-entry-buy">Buy</button>
       <button id="order-entry-sell">Sell</button>
     </div>
+    <div>
+      <h3>Hot Buttons</h3>
+      <button id="order-entry-cancel">Cancel All</button>
+    </div>
+    <div>
+      <h3>NBBO</h3>
+      <div id="order-entry-nbbo-symbol"></div>
+      <div id="order-entry-nbbo-underlying"></div>
+    </div>
   </div>
-  <h3>Hot Buttons</h3>
-  <button id="order-entry-cancel">Cancel All Orders</button>
-  <h3>NBBO</h3>
   <div>
-    <div id="nbbo-symbol"></div>
-    <div id="nbbo-underlying"></div>
+    <h2>Positions</h2>
+    <div id="positions-alpaca"></div>
   </div>
-  <h2>Positions</h2>
-  <div id="positions"></div>
-  <h2>Orders</h2>
-  <div id="orders"></div>
-  <h2>Options</h2>
-  <button id="options-load-contracts">Load Contracts</button>
-  <div id="options-contracts">
-    <div>Underlying: <span id="options-underlying"></span></div>
-    <div>
-      <label for="option-side">Side: </label>
-      <select id="option-side">
-        <option value="call">Call</option>
-        <option value="put">Put</option>
-      </select>
-    </div>
-    <div>
-      <label for="option-expirations">Expiration: </label>
-      <select id="option-expirations"></select>
-    </div>
-    <div>
-      <label for="option-strikes">Strike: </label>
-      <select id="option-strikes"></select>
-    </div>
-    <button id="options-set-symbol">Set Symbol To Contract</button>
+  <div>
+    <h2>Orders</h2>
+    <div id="orders-alpaca"></div>
   </div>
-  <h2>Log</h2>
-  <div id="log-entries"></div>
+  <div>
+    <h2>Options</h2>
+    <button id="options-load-contracts">Load Contracts</button>
+    <div id="options-contracts">
+      <div>Underlying: <span id="options-underlying"></span></div>
+      <div>
+        <label for="options-side">Side: </label>
+        <select id="options-side">
+          <option value="call">Call</option>
+          <option value="put">Put</option>
+        </select>
+      </div>
+      <div>
+        <label for="options-expiration">Expiration: </label>
+        <select id="options-expiration"></select>
+      </div>
+      <div>
+        <label for="options-strike">Strike: </label>
+        <select id="options-strike"></select>
+      </div>
+      <button id="options-set-symbol">Set Symbol</button>
+    </div>
+  </div>
+  <div>
+    <h2>Log</h2>
+    <div id="log-entries"></div>
+  </div>
   <script type="module">
-    import {e, useState, useRetainedState} from "https://esm.sh/gh/dawsonfrakes/deact/deact.mjs"
     import {encode as encodeMsgpack, decode as decodeMsgpack} from "https://esm.sh/@msgpack/msgpack"
 
-    const upperFirst = text => text.slice(0, 1).toUpperCase() + text.slice(1)
-    const dollars = text => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(text)
+    const $ = x => document.getElementById(x)
+    const useState = defaultVal => ({
+      _val: defaultVal,
+      _subs: [],
+      oldVal: undefined,
+      get val() { return this._val },
+      set val(newVal) { [this.oldVal, this._val] = [this._val, newVal]; this._subs.forEach(f => f()) },
+      $(f) { this._subs.push(f); f() }
+    })
+    const useRetainedState = (name, defaultVal) => {
+      const oldVal = localStorage.getItem(name)
+      const state = useState(oldVal !== null ? JSON.parse(oldVal) : defaultVal)
+      state.$(() => localStorage.setItem(name, JSON.stringify(state.val)))
+      return state
+    }
 
-    const alpacaPaper = useRetainedState("alpaca-paper", true)
-    const alpacaKey = useRetainedState("alpaca-key", "")
-    const alpacaSecret = useRetainedState("alpaca-secret", "")
-    const alpacaConnecting = useState(false)
-    const alpacaConnected = useState(false)
-    const alpacaPositions = useState([])
-    const alpacaOrders = useState([])
-    const alpacaStockDataConnected = useState(false)
-    const alpacaStockDataWs = useState(null)
-    const alpacaOptionDataConnected = useState(false)
-    const alpacaOptionDataWs = useState(null)
-    const alpacaQuotes = useState({})
+    const accountAlpacaPaper = useRetainedState("account-alpaca-paper", true)
+    const accountAlpacaKey = useRetainedState("account-alpaca-key", "")
+    const accountAlpacaSecret = useRetainedState("account-alpaca-secret", "")
+    const accountAlpacaConnecting = useState(false)
+    const accountAlpacaConnected = useState(false)
+    const accountAlpacaAccountNumber = useState("")
+    const accountAlpacaCash = useState("")
+    const accountAlpacaBuyingPower = useState("")
+    const accountAlpacaPositions = useState([])
+    const accountAlpacaOrders = useState([])
+    const accountAlpacaQuotes = useState({})
+    const accountAlpacaTradeUpdatesWs = useState(null)
+    const accountAlpacaStockDataWs = useState(null)
+    const accountAlpacaOptionDataWs = useState(null)
     const orderEntrySymbol = useRetainedState("order-entry-symbol", "")
     const orderEntryQuantity = useState("0")
     const orderEntryOrderType = useState("market")
-    const orderEntryLimitPrice = useState("0.00")
-    const optionsContracts = useState([])
-    const optionsExpirations = useState([])
-    const optionsStrikes = useState([])
+    const orderEntryLimitPrice = useState("0")
     const optionsUnderlying = useState("")
+    const optionsContracts = useState([])
+    const optionsValidExpirations = useState([])
+    const optionsValidStrikes = useState([])
     const optionsSide = useState("call")
     const optionsExpiration = useState("")
     const optionsStrike = useState("")
-    const log = useState([])
+    const logEntries = useState([])
 
-    const info = text => log.val = [{kind: "info", time: new Date(), text}, ...log.val]
-    const warn = text => log.val = [{kind: "warn", time: new Date(), text}, ...log.val]
-    const error = text => log.val = [{kind: "error", time: new Date(), text}, ...log.val]
+    const upperFirst = text => text.slice(0, 1).toUpperCase() + text.slice(1)
+    const dollars = text => new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"}).format(text)
     const alpacaFetch = async (method, endpoint, body) => {
-      const url = alpacaPaper.val ? "https://paper-api.alpaca.markets" : "https://api.alpaca.markets"
+      const url = accountAlpacaPaper.val ? "https://paper-api.alpaca.markets" : "https://api.alpaca.markets"
       const res = await fetch(`${url}${endpoint}`, {
         method,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "APCA-API-KEY-ID": alpacaKey.val,
-          "APCA-API-SECRET-KEY": alpacaSecret.val
+          "APCA-API-KEY-ID": accountAlpacaKey.val,
+          "APCA-API-SECRET-KEY": accountAlpacaSecret.val
         },
         body: body !== undefined ? JSON.stringify(body) : undefined
       })
-      if (!res.ok) throw new Error(res.statusText)
+      if (!res.ok) throw new Error((await res.json()).message)
       return res.json()
     }
-    const alpacaSubscribe = () => {
-      if (!alpacaConnected.val || !alpacaStockDataConnected.val || !alpacaOptionDataConnected.val) return
-      if (orderEntrySymbol.oldVal !== undefined && orderEntrySymbol.oldVal !== "") {
-       if (orderEntrySymbol.oldVal.length > 8) {
-          alpacaOptionDataWs.val.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbol.val]}))
+    const orderEntryUpdateSymbolNBBO = () => {
+      if (!accountAlpacaConnected.val || accountAlpacaStockDataWs.val === null || accountAlpacaOptionDataWs.val === null) return
+      if (orderEntrySymbol.oldVal) {
+        if (orderEntrySymbol.oldVal.length > 8) {
+          accountAlpacaOptionDataWs.val?.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbol.oldVal]}))
         } else {
-          alpacaStockDataWs.val.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntrySymbol.val]}))
+          accountAlpacaStockDataWs.val?.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntrySymbol.oldVal]}))
         }
       }
-      if (orderEntrySymbol.val !== "") {
+      if (orderEntrySymbol.val) {
         if (orderEntrySymbol.val.length > 8) {
-          alpacaOptionDataWs.val.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol.val]}))
+          accountAlpacaOptionDataWs.val?.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol.val]}))
         } else {
-          alpacaStockDataWs.val.send(JSON.stringify({action: "subscribe", quotes: [orderEntrySymbol.val]}))
+          accountAlpacaStockDataWs.val?.send(JSON.stringify({action: "subscribe", quotes: [orderEntrySymbol.val]}))
         }
       }
-      if (optionsUnderlying.oldVal !== undefined && optionsUnderlying.oldVal !== "") {
-        alpacaStockDataWs.val.send(JSON.stringify({action: "unsubscribe", quotes: [optionsUnderlying.oldVal]}))
+    }
+    const orderEntryUpdateUnderlyingNBBO = () => {
+      if (!accountAlpacaConnected.val || accountAlpacaStockDataWs.val === null) return
+      if (optionsUnderlying.oldVal) {
+        accountAlpacaStockDataWs.val?.send(JSON.stringify({action: "unsubscribe", quotes: [optionsUnderlying.oldVal]}))
       }
-      if (optionsUnderlying.val !== "" && optionsUnderlying.val !== orderEntrySymbol.val) {
-        alpacaStockDataWs.val.send(JSON.stringify({action: "subscribe", quotes: [optionsUnderlying.val]}))
+      if (optionsUnderlying.val) {
+        accountAlpacaStockDataWs.val?.send(JSON.stringify({action: "subscribe", quotes: [optionsUnderlying.val]}))
       }
     }
     const optionsUpdateValidExpirations = () => {
@@ -565,320 +541,320 @@
           newExpirations.push(contract.expiration_date)
         }
       }
-      optionsExpirations.val = [...new Set(newExpirations)]
-      optionsExpiration.val = optionsExpirations.val[0]
+      optionsValidExpirations.val = [...new Set(newExpirations)]
+      optionsExpiration.val = newExpirations[0]
     }
     const optionsUpdateValidStrikes = () => {
       const newStrikes = []
       for (const contract of optionsContracts.val) {
-        if (contract.type === optionsSide.val && contract.expiration_date === optionsExpiration.val) {
+        if (contract.type === optionsSide.val &&
+            contract.expiration_date === optionsExpiration.val
+        ) {
           newStrikes.push(contract.strike_price)
         }
       }
-      optionsStrikes.val = [...new Set(newStrikes)]
-      optionsStrike.val = optionsStrikes.val[0]
-      if (alpacaQuotes.val[optionsUnderlying.val] !== undefined) {
-        const ap = alpacaQuotes.val[optionsUnderlying.val].ap
-        optionsStrike.val = optionsStrikes.val.reduce((prev, curr) => Math.abs(ap - prev) < Math.abs(ap - curr) ? prev : curr)
-      }
+      optionsValidStrikes.val = [...new Set(newStrikes)]
+      optionsStrike.val = newStrikes[0]
     }
+    const info = text => logEntries.val = [{kind: "info", time: new Date(), text}, ...logEntries.val]
+    const warn = text => logEntries.val = [{kind: "warn", time: new Date(), text}, ...logEntries.val]
+    const error = text => logEntries.val = [{kind: "error", time: new Date(), text}, ...logEntries.val]
 
-    alpacaQuotes.sub(() => {
-      e`nbbo-symbol`.hidden = orderEntrySymbol.val === "" || alpacaQuotes.val[orderEntrySymbol.val] === undefined || orderEntrySymbol.val === optionsUnderlying.val
-      e`nbbo-underlying`.hidden = optionsUnderlying.val === "" || alpacaQuotes.val[optionsUnderlying.val] === undefined
-      if (alpacaQuotes.val[orderEntrySymbol.val] !== undefined) {
-        const q = alpacaQuotes.val[orderEntrySymbol.val]
-        e`nbbo-symbol`.textContent = `${orderEntrySymbol.val}: ${q.bs} ${dollars(q.bp)} x ${q.as} ${dollars(q.ap)}`
-      }
-      if (alpacaQuotes.val[optionsUnderlying.val] !== undefined) {
-        const q = alpacaQuotes.val[optionsUnderlying.val]
-        e`nbbo-underlying`.textContent = `${optionsUnderlying.val}: ${q.bs} ${dollars(q.bp)} x ${q.as} ${dollars(q.ap)}`
-      }
+    $`settings-clear-local-storage`.onclick = () => localStorage.clear()
+    accountAlpacaPaper.$(() => {
+      $`account-alpaca-paper`.checked = accountAlpacaPaper.val
+      $`account-alpaca-paper`.oninput = e => accountAlpacaPaper.val = e.target.checked
     })
-    alpacaPaper.sub(() => {
-      e`alpaca-paper`.checked = alpacaPaper.val
-      e`alpaca-paper`.oninput = e => alpacaPaper.val = e.target.checked
+    accountAlpacaKey.$(() => {
+      $`account-alpaca-key`.value = accountAlpacaKey.val
+      $`account-alpaca-key`.oninput = e => accountAlpacaKey.val = e.target.value
     })
-    alpacaKey.sub(() => {
-      e`alpaca-key`.value = alpacaKey.val
-      e`alpaca-key`.oninput = e => alpacaKey.val = e.target.value
+    accountAlpacaSecret.$(() => {
+      $`account-alpaca-secret`.value = accountAlpacaSecret.val
+      $`account-alpaca-secret`.oninput = e => accountAlpacaSecret.val = e.target.value
     })
-    alpacaSecret.sub(() => {
-      e`alpaca-secret`.value = alpacaSecret.val
-      e`alpaca-secret`.oninput = e => alpacaSecret.val = e.target.value
-    })
-    alpacaConnecting.sub(() => {
-      e`alpaca-connect`.disabled = alpacaConnecting.val
-    })
-    alpacaConnected.sub(() => {
-      e`alpaca-disconnected`.hidden = alpacaConnected.val
-      e`alpaca-connected`.hidden = !alpacaConnected.val
-    })
-    e`alpaca-connect`.onclick = () => {
-      alpacaConnecting.val = true
+    $`account-alpaca-connect`.onclick = () => {
+      accountAlpacaConnecting.val = true
       alpacaFetch("GET", "/v2/account")
         .then(res => {
-          e`alpaca-account-number`.textContent = res.account_number
-          e`alpaca-cash`.textContent = dollars(res.cash)
-          e`alpaca-buying-power`.textContent = dollars(res.buying_power)
           alpacaFetch("GET", "/v2/positions")
-            .then(res => alpacaPositions.val = res)
+            .then(res => accountAlpacaPositions.val = res)
           alpacaFetch("GET", "/v2/orders")
-            .then(res => alpacaOrders.val = res)
-
+            .then(res => accountAlpacaOrders.val = res)
           info("Alpaca connected.")
-          alpacaConnected.val = true
-          alpacaConnecting.val = false
+          accountAlpacaAccountNumber.val = res.account_number
+          accountAlpacaCash.val = res.cash
+          accountAlpacaBuyingPower.val = res.buying_power
+          accountAlpacaConnected.val = true
+          accountAlpacaConnecting.val = false
 
           {
-            const url = alpacaPaper.val ? "wss://paper-api.alpaca.markets/stream" : "wss://api.alpaca.markets/stream"
+            const url = accountAlpacaPaper.val ? "wss://paper-api.alpaca.markets/stream" : "wss://api.alpaca.markets/stream"
             const ws = new WebSocket(url)
             ws.onopen = e => {
-              ws.send(JSON.stringify({action: "auth", key: alpacaKey.val, secret: alpacaSecret.val}))
+              ws.send(JSON.stringify({action: "auth", key: accountAlpacaKey.val, secret: accountAlpacaSecret.val}))
             }
             ws.onmessage = async e => {
               const msg = JSON.parse(await e.data.text())
-              if (msg.stream === "authorization") {
-                if (msg.data.status === "authorized") {
-                  ws.send(JSON.stringify({action: "listen", data: {streams: ["trade_updates"]}}))
-                }
+              if (msg.stream === "authorization" && msg.data.status === "authorized") {
+                ws.send(JSON.stringify({action: "listen", data: {streams: ["trade_updates"]}}))
               }
               if (msg.stream === "listening") {
-                info("Alpaca trade update stream connected.")
+                info("Alpaca trade updates stream subscribed.")
+                accountAlpacaTradeUpdatesWs.val = ws
               }
               if (msg.stream === "trade_updates") {
                 const newOrder = msg.data.order
                 let found = false
-                for (let i = 0; i < alpacaOrders.val.length; i++) {
-                  const order = alpacaOrders.val[i]
+                for (let i = 0; i < accountAlpacaOrders.val.length; i++) {
+                  const order = accountAlpacaOrders.val[i]
                   if (order.id === newOrder.id) {
-                    alpacaOrders.val = [...alpacaOrders.val.slice(0, i), newOrder, ...alpacaOrders.val.slice(i + 1)]
+                    accountAlpacaOrders.val = [...accountAlpacaOrders.val.slice(0, i), newOrder, ...accountAlpacaOrders.val.slice(i + 1)]
                     found = true
                     break
                   }
                 }
-                if (!found) alpacaOrders.val = [...alpacaOrders.val, newOrder]
+                if (!found) accountAlpacaOrders.val = [...accountAlpacaOrders.val, newOrder]
                 if (msg.data.event === "fill" || msg.data.event === "partial_fill") {
                   alpacaFetch("GET", "/v2/positions")
-                    .then(res => alpacaPositions.val = res)
+                    .then(res => accountAlpacaPositions.val = res)
                 }
               }
+            }
+            ws.onclose = e => {
+              accountAlpacaTradeUpdatesWs.val = null
             }
           }
 
           {
             const ws = new WebSocket("wss://stream.data.alpaca.markets/v2/sip")
-            alpacaStockDataWs.val = ws
             ws.onopen = e => {
-              ws.send(JSON.stringify({action: "auth", key: alpacaKey.val, secret: alpacaSecret.val}))
+              ws.send(JSON.stringify({action: "auth", key: accountAlpacaKey.val, secret: accountAlpacaSecret.val}))
             }
             ws.onmessage = async e => {
               const msgs = JSON.parse(e.data)
               for (const msg of msgs) {
-                if (msg.T === "success" && msg.msg === "connected") {
-                  info("Alpaca stock market data stream connected.")
-                  alpacaStockDataConnected.val = true
-                  alpacaSubscribe()
+                if (msg.T === "success" && msg.msg === "authenticated") {
+                  info("Alpaca stock data stream subscribed.")
+                  accountAlpacaStockDataWs.val = ws
                 }
                 if (msg.T === "q") {
-                  alpacaQuotes.val = {...alpacaQuotes.val, [msg.S]: msg}
+                  accountAlpacaQuotes.val = {...accountAlpacaQuotes.val, [msg.S]: msg}
                 }
               }
             }
             ws.onclose = e => {
-              alpacaStockDataConnected.val = false
-              alpacaStockDataWs.val = null
+              accountAlpacaStockDataWs.val = null
             }
           }
 
           {
             const ws = new WebSocket("wss://stream.data.alpaca.markets/v1beta1/opra")
-            alpacaOptionDataWs.val = ws
             ws.onopen = e => {
-              ws.send(encodeMsgpack({action: "auth", key: alpacaKey.val, secret: alpacaSecret.val}))
+              ws.send(encodeMsgpack({action: "auth", key: accountAlpacaKey.val, secret: accountAlpacaSecret.val}))
             }
             ws.onmessage = async e => {
               const msgs = decodeMsgpack(await e.data.arrayBuffer())
               for (const msg of msgs) {
-                if (msg.T === "success" && msg.msg === "connected") {
-                  info("Alpaca option market data stream connected.")
-                  alpacaOptionDataConnected.val = true
-                  alpacaSubscribe()
+                if (msg.T === "success" && msg.msg === "authenticated") {
+                  info("Alpaca option data stream subscribed.")
+                  accountAlpacaOptionDataWs.val = ws
                 }
                 if (msg.T === "q") {
-                  alpacaQuotes.val = {...alpacaQuotes.val, [msg.S]: msg}
+                  accountAlpacaQuotes.val = {...accountAlpacaQuotes.val, [msg.S]: msg}
                 }
               }
             }
             ws.onclose = e => {
-              alpacaOptionDataConnected.val = false
-              alpacaOptionDataWs.val = null
+              accountAlpacaOptionDataWs.val = null
             }
           }
         })
         .catch(err => {
-          error(`Alpaca failed to connect. ${err}`)
-          alpacaConnecting.val = false
+          error(`Alpaca connection failed. ${err}`)
+          accountAlpacaConnecting.val = false
         })
     }
-    e`alpaca-disconnect`.onclick = () => {
+    $`account-alpaca-disconnect`.onclick = () => {
       info("Alpaca disconnected.")
-      alpacaPositions.val = []
-      alpacaOrders.val = []
-      alpacaStockDataWs.val?.close()
-      alpacaOptionDataWs.val?.close()
-      alpacaQuotes.val = {}
-      alpacaConnected.val = false
+      accountAlpacaTradeUpdatesWs.val?.close()
+      accountAlpacaStockDataWs.val?.close()
+      accountAlpacaOptionDataWs.val?.close()
+      accountAlpacaPositions.val = []
+      accountAlpacaOrders.val = []
+      accountAlpacaQuotes.val = {}
+      accountAlpacaConnected.val = false
     }
-    alpacaPositions.sub(() => {
-      const nodes = []
-      for (const position of alpacaPositions.val) {
+    accountAlpacaConnecting.$(() => {
+      $`account-alpaca-connect`.disabled = accountAlpacaConnecting.val
+    })
+    accountAlpacaConnected.$(() => {
+      $`account-alpaca-disconnected`.hidden = accountAlpacaConnected.val
+      $`account-alpaca-connected`.hidden = !accountAlpacaConnected.val
+    })
+    accountAlpacaAccountNumber.$(() => {
+      $`account-alpaca-account-number`.textContent = accountAlpacaAccountNumber.val
+    })
+    accountAlpacaCash.$(() => {
+      $`account-alpaca-cash`.textContent = dollars(accountAlpacaCash.val)
+    })
+    accountAlpacaBuyingPower.$(() => {
+      $`account-alpaca-buying-power`.textContent = dollars(accountAlpacaBuyingPower.val)
+    })
+    accountAlpacaPositions.$(() => {
+      const newNodes = []
+      for (const position of accountAlpacaPositions.val) {
         const node = document.createElement("div")
         node.textContent = `${upperFirst(position.side)} ${position.qty} ${position.symbol} @ ${dollars(position.avg_entry_price)}`
-        nodes.push(node)
+        newNodes.push(node)
       }
-      e`positions`.replaceChildren(...nodes)
+      $`positions-alpaca`.replaceChildren(...newNodes)
     })
-    alpacaOrders.sub(() => {
-      const nodes = []
-      for (const order of alpacaOrders.val) {
+    accountAlpacaOrders.$(() => {
+      const newNodes = []
+      for (const order of accountAlpacaOrders.val) {
         if (order.status === "pending_new" || order.status === "new" || order.status === "accepted" || order.status === "partially_filled" || order.status === "pending_cancel") {
           const node = document.createElement("div")
-          node.textContent = `${upperFirst(order.side)} ${order.filled_qty}/${order.qty} ${order.symbol} @ ${order.limit_price !== undefined ? dollars(order.limit_price) : "MKT"}`
-          nodes.push(node)
+          node.textContent = `${upperFirst(order.side)} ${order.filled_qty}/${order.qty} ${order.symbol} @ ${order.limit_price ? dollars(order.limit_price) : "MKT"}`
+          newNodes.push(node)
         }
       }
-      e`orders`.replaceChildren(...nodes)
+      $`orders-alpaca`.replaceChildren(...newNodes)
     })
-    orderEntrySymbol.sub(() => {
-      e`order-entry-symbol`.value = orderEntrySymbol.val
-      e`order-entry-symbol`.oninput = e => orderEntrySymbol.val = e.target.value.toUpperCase()
-      alpacaSubscribe()
+    accountAlpacaQuotes.$(() => {
+      const sq = accountAlpacaQuotes[orderEntrySymbol.val]
+      const uq = accountAlpacaQuotes[optionsUnderlying.val]
+      $`order-entry-nbbo-symbol`.textContent = sq ? `${orderEntrySymbol.val}: ${sq.bs} ${dollars(sq.bp)} x ${sq.as} ${dollars(sq.ap)}` : ""
+      $`order-entry-nbbo-underlying`.textContent = uq && optionsUnderlying.val !== orderEntrySymbol.val ? `${optionsUnderlying.val}: ${uq.bs} ${dollars(uq.bp)} x ${uq.as} ${dollars(uq.ap)}` : ""
     })
-    orderEntryQuantity.sub(() => {
-      e`order-entry-quantity`.value = orderEntryQuantity.val
-      e`order-entry-quantity`.oninput = e => orderEntryQuantity.val = e.target.value
+    accountAlpacaStockDataWs.$(() => {
+      orderEntryUpdateSymbolNBBO()
+      orderEntryUpdateUnderlyingNBBO()
     })
-    orderEntryOrderType.sub(() => {
-      e`order-entry-order-type`.value = orderEntryOrderType.val
-      e`order-entry-order-type`.oninput = e => orderEntryOrderType.val = e.target.value
-      e`order-entry-limit`.hidden = orderEntryOrderType.val !== "limit"
+    accountAlpacaOptionDataWs.$(() => {
+      orderEntryUpdateSymbolNBBO()
     })
-    orderEntryLimitPrice.sub(() => {
-      e`order-entry-limit-price`.value = orderEntryLimitPrice.val
-      e`order-entry-limit-price`.oninput = e => orderEntryLimitPrice.val = e.target.value
+    orderEntrySymbol.$(() => {
+      $`order-entry-symbol`.value = orderEntrySymbol.val
+      $`order-entry-symbol`.oninput = e => orderEntrySymbol.val = e.target.value.toUpperCase()
+      orderEntryUpdateSymbolNBBO()
     })
-    e`order-entry-buy`.onclick = () => {
-      if (!alpacaConnected.val) return
+    orderEntryQuantity.$(() => {
+      $`order-entry-quantity`.value = orderEntryQuantity.val
+      $`order-entry-quantity`.oninput = e => orderEntryQuantity.val = e.target.value
+    })
+    orderEntryOrderType.$(() => {
+      $`order-entry-order-type`.value = orderEntryOrderType.val
+      $`order-entry-order-type`.oninput = e => orderEntryOrderType.val = e.target.value
+      $`order-entry-limit`.hidden = orderEntryOrderType.val !== "limit"
+    })
+    orderEntryLimitPrice.$(() => {
+      $`order-entry-limit-price`.value = orderEntryLimitPrice.val
+      $`order-entry-limit-price`.oninput = e => orderEntryLimitPrice.val = e.target.value
+    })
+    $`order-entry-buy`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
       alpacaFetch("POST", "/v2/orders", {
         time_in_force: "day",
-        extended_hours: orderEntryOrderType.val === "limit" ? true : undefined,
-        type: orderEntryOrderType.val,
-        qty: orderEntryQuantity.val,
-        limit_price: orderEntryOrderType.val === "limit" ? orderEntryLimitPrice.val : undefined,
         side: "buy",
-        symbol: orderEntrySymbol.val
-      })
-        .then(res => info("Alpaca order placed."))
-        .catch(err => error(`Alpaca order failed. ${err}`))
-    }
-    e`order-entry-sell`.onclick = () => {
-      if (!alpacaConnected.val) return
-      alpacaFetch("POST", "/v2/orders", {
-        time_in_force: "day",
-        extended_hours: orderEntryOrderType.val === "limit" ? true : undefined,
-        type: orderEntryOrderType.val,
+        symbol: orderEntrySymbol.val,
         qty: orderEntryQuantity.val,
         limit_price: orderEntryOrderType.val === "limit" ? orderEntryLimitPrice.val : undefined,
-        side: "sell",
-        symbol: orderEntrySymbol.val
+        extended_hours: orderEntryOrderType.val === "limit" ? true : undefined,
+        type: orderEntryOrderType.val
       })
-        .then(res => info("Alpaca order placed."))
-        .catch(err => error(`Alpaca order failed. ${err}`))
+        .then(res => info(`Alpaca buy order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}.`))
+        .catch(err => error(`Alpaca buy order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}. ${err}`))
     }
-    e`order-entry-cancel`.onclick = () => {
-      if (!alpacaConnected.val) return
+    $`order-entry-sell`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
+      alpacaFetch("POST", "/v2/orders", {
+        time_in_force: "day",
+        side: "sell",
+        symbol: orderEntrySymbol.val,
+        qty: orderEntryQuantity.val,
+        limit_price: orderEntryOrderType.val === "limit" ? orderEntryLimitPrice.val : undefined,
+        extended_hours: orderEntryOrderType.val === "limit" ? true : undefined,
+        type: orderEntryOrderType.val
+      })
+        .then(res => info(`Alpaca sell order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}.`))
+        .catch(err => error(`Alpaca sell order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}. ${err}`))
+    }
+    $`order-entry-cancel`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
       alpacaFetch("DELETE", "/v2/orders")
+        .then(res => info("Alpaca orders cancelled."))
+        .catch(err => error(`Alpaca orders cancel failed. ${err}`))
     }
-    e`options-load-contracts`.onclick = () => {
-      if (!alpacaConnected.val || orderEntrySymbol.val === "") return
+    $`options-load-contracts`.onclick = () => {
       alpacaFetch("GET", `/v2/options/contracts?underlying_symbols=${orderEntrySymbol.val}&expiration_date_gte=${new Date().toISOString().split("T")[0]}&limit=10000`)
         .then(res => {
-          if (res.option_contracts.length > 0) {
-            optionsUnderlying.val = orderEntrySymbol.val
-            optionsContracts.val = res.option_contracts
-            info("Alpaca loaded options contracts.")
-          }
+          info(`Alpaca contracts for ${orderEntrySymbol.val} loaded.`)
+          optionsContracts.val = res.option_contracts
+          optionsUnderlying.val = orderEntrySymbol.val
         })
-        .catch(err => warn(`${err}`))
+        .catch(err => error(`Alpaca contracts for ${orderEntrySymbol.val} error. ${err}`))
     }
-    optionsContracts.sub(() => {
+    optionsUnderlying.$(() => {
+      $`options-contracts`.hidden = optionsUnderlying.val === ""
+      $`options-underlying`.textContent = optionsUnderlying.val
+      orderEntryUpdateUnderlyingNBBO()
+    })
+    optionsContracts.$(() => {
       optionsUpdateValidExpirations()
     })
-    optionsUnderlying.sub(() => {
-      e`options-contracts`.hidden = optionsUnderlying.val === ""
-      e`options-underlying`.textContent = optionsUnderlying.val
-      alpacaSubscribe()
-    })
-    optionsExpirations.sub(() => {
-      const nodes = []
-      for (const expiration of optionsExpirations.val) {
+    optionsValidExpirations.$(() => {
+      const newNodes = []
+      for (const expiration of optionsValidExpirations.val) {
         const node = document.createElement("option")
         node.value = expiration
         node.textContent = expiration
-        nodes.push(node)
+        newNodes.push(node)
       }
-      e`option-expirations`.replaceChildren(...nodes)
+      $`options-expiration`.replaceChildren(...newNodes)
     })
-    optionsStrikes.sub(() => {
-      const nodes = []
-      for (const strike of optionsStrikes.val) {
+    optionsValidStrikes.$(() => {
+      const newNodes = []
+      for (const strike of optionsValidStrikes.val) {
         const node = document.createElement("option")
         node.value = strike
         node.textContent = dollars(strike)
-        nodes.push(node)
+        newNodes.push(node)
       }
-      e`option-strikes`.replaceChildren(...nodes)
+      $`options-strike`.replaceChildren(...newNodes)
     })
-    optionsSide.sub(() => {
+    optionsSide.$(() => {
+      $`options-side`.value = optionsSide.val
+      $`options-side`.oninput = e => optionsSide.val = e.target.value
       optionsUpdateValidExpirations()
-      e`option-side`.value = optionsSide.val
-      e`option-side`.oninput = e => {
-        optionsSide.val = e.target.value
-        optionsUpdateValidExpirations()
-      }
     })
-    optionsExpiration.sub(() => {
+    optionsExpiration.$(() => {
+      $`options-expiration`.value = optionsExpiration.val
+      $`options-expiration`.oninput = e => optionsExpiration.val = e.target.value
       optionsUpdateValidStrikes()
-      e`option-expirations`.value = optionsExpiration.val
-      e`option-expirations`.oninput = e => {
-        optionsExpiration.val = e.target.value
-        optionsUpdateValidStrikes()
-      }
     })
-    optionsStrike.sub(() => {
-      e`option-strikes`.value = optionsStrike.val
-      e`option-strikes`.oninput = e => optionsStrike.val = e.target.value
+    optionsStrike.$(() => {
+      $`options-strike`.value = optionsStrike.val
+      $`options-strike`.oninput = e => optionsStrike.val = e.target.value
     })
-    e`options-set-symbol`.onclick = () => {
+    $`options-set-symbol`.onclick = () => {
       for (const contract of optionsContracts.val) {
         if (contract.type === optionsSide.val &&
             contract.expiration_date === optionsExpiration.val &&
-            contract.strike_price === optionsStrike.val)
-        {
+            contract.strike_price === optionsStrike.val
+        ) {
           orderEntrySymbol.val = contract.symbol
-          break
         }
       }
     }
-    log.sub(() => {
-      const nodes = []
-      for (const entry of log.val) {
+    logEntries.$(() => {
+      const newNodes = []
+      for (const entry of logEntries.val) {
         const node = document.createElement("div")
         node.textContent = `${upperFirst(entry.kind)} | ${entry.time.toLocaleTimeString()} | ${entry.text}`
-        nodes.push(node)
+        newNodes.push(node)
       }
-      e`log-entries`.replaceChildren(...nodes)
+      $`log-entries`.replaceChildren(...newNodes)
     })
   </script>
 </body>
