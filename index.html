@@ -538,14 +538,14 @@
     const alpacaSubscribe = () => {
       if (!alpacaConnected.val || !alpacaStockDataConnected.val || !alpacaOptionDataConnected.val) return
       if (orderEntrySymbol.oldVal !== undefined && orderEntrySymbol.oldVal !== "") {
-       if (orderEntrySymbol.oldVal.length > 5) {
+       if (orderEntrySymbol.oldVal.length > 8) {
           alpacaOptionDataWs.val.send(encodeMsgpack({action: "unsubscribe", quotes: [orderEntrySymbol.val]}))
         } else {
           alpacaStockDataWs.val.send(JSON.stringify({action: "unsubscribe", quotes: [orderEntrySymbol.val]}))
         }
       }
       if (orderEntrySymbol.val !== "") {
-        if (orderEntrySymbol.val.length > 5) {
+        if (orderEntrySymbol.val.length > 8) {
           alpacaOptionDataWs.val.send(encodeMsgpack({action: "subscribe", quotes: [orderEntrySymbol.val]}))
         } else {
           alpacaStockDataWs.val.send(JSON.stringify({action: "subscribe", quotes: [orderEntrySymbol.val]}))
@@ -723,6 +723,11 @@
     }
     e`alpaca-disconnect`.onclick = () => {
       info("Alpaca disconnected.")
+      alpacaPositions.val = []
+      alpacaOrders.val = []
+      alpacaStockDataWs.val?.close()
+      alpacaOptionDataWs.val?.close()
+      alpacaQuotes.val = {}
       alpacaConnected.val = false
     }
     alpacaPositions.sub(() => {
