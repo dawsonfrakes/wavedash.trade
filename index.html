@@ -842,8 +842,8 @@
       $`orders-alpaca`.replaceChildren(...newNodes)
     })
     accountAlpacaQuotes.$(() => {
-      const sq = accountAlpacaQuotes[orderEntrySymbol.val]
-      const uq = accountAlpacaQuotes[optionsUnderlying.val]
+      const sq = accountAlpacaQuotes.val[orderEntrySymbol.val]
+      const uq = accountAlpacaQuotes.val[optionsUnderlying.val]
       $`order-entry-nbbo-symbol`.textContent = sq ? `${orderEntrySymbol.val}: ${sq.bs} ${dollars(sq.bp)} x ${sq.as} ${dollars(sq.ap)}` : ""
       $`order-entry-nbbo-underlying`.textContent = uq && optionsUnderlying.val !== orderEntrySymbol.val ? `${optionsUnderlying.val}: ${uq.bs} ${dollars(uq.bp)} x ${uq.as} ${dollars(uq.ap)}` : ""
     })
