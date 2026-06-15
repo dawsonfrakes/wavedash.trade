@@ -858,6 +858,7 @@
       $`order-entry-symbol`.value = orderEntrySymbol.val
       $`order-entry-symbol`.oninput = e => orderEntrySymbol.val = e.target.value.toUpperCase()
       orderEntryUpdateSymbolNBBO()
+      orderEntryUpdateUnderlyingNBBO()
     })
     orderEntryQuantity.$(() => {
       $`order-entry-quantity`.value = orderEntryQuantity.val
