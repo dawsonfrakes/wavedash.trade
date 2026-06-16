@@ -677,7 +677,13 @@
         }
       }
       optionsValidStrikes.val = [...new Set(newStrikes)]
-      optionsStrike.val = newStrikes[0]
+      const quote = accountAlpacaQuotes.val[optionsUnderlying.val]
+      if (quote !== undefined) {
+        const nearest = newStrikes.reduce((prev, curr) => Math.abs(curr - quote.ap) < Math.abs(prev - quote.ap) ? curr : prev)
+        optionsStrike.val = nearest
+      } else {
+        optionsStrike.val = newStrikes[0]
+      }
     }
     const info = text => logEntries.val = [{kind: "info", time: new Date(), text}, ...logEntries.val]
     const warn = text => logEntries.val = [{kind: "warn", time: new Date(), text}, ...logEntries.val]
@@ -926,8 +932,8 @@
       alpacaFetch("GET", `/v2/options/contracts?underlying_symbols=${orderEntrySymbol.val}&expiration_date_gte=${new Date().toISOString().split("T")[0]}&limit=10000`)
         .then(res => {
           info(`Alpaca contracts for ${orderEntrySymbol.val} loaded.`)
-          optionsContracts.val = res.option_contracts
           optionsUnderlying.val = orderEntrySymbol.val
+          optionsContracts.val = res.option_contracts
         })
         .catch(err => error(`Alpaca contracts for ${orderEntrySymbol.val} error. ${err}`))
     }
