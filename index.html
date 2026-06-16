@@ -488,6 +488,7 @@
       </div>
       <div id="account-alpaca-connected">
         <div>Account Number: <span id="account-alpaca-account-number"></span></div>
+        <div>Daily P/L: <span id="account-alpaca-pnl"></span></div>
         <div>Cash: <span id="account-alpaca-cash"></span></div>
         <div>Buying Power: <span id="account-alpaca-buying-power"></span></div>
         <button id="account-alpaca-disconnect">Disconnect</button>
@@ -590,6 +591,8 @@
     const accountAlpacaConnecting = useState(false)
     const accountAlpacaConnected = useState(false)
     const accountAlpacaAccountNumber = useState("")
+    const accountAlpacaLastEquity = useState("")
+    const accountAlpacaEquity = useState("")
     const accountAlpacaCash = useState("")
     const accountAlpacaBuyingPower = useState("")
     const accountAlpacaPositions = useState([])
@@ -703,6 +706,8 @@
             .then(res => accountAlpacaOrders.val = res)
           info("Alpaca connected.")
           accountAlpacaAccountNumber.val = res.account_number
+          accountAlpacaLastEquity.val = res.last_equity
+          accountAlpacaEquity.val = res.equity
           accountAlpacaCash.val = res.cash
           accountAlpacaBuyingPower.val = res.buying_power
           accountAlpacaConnected.val = true
@@ -736,6 +741,13 @@
                 }
                 if (!found) accountAlpacaOrders.val = [...accountAlpacaOrders.val, newOrder]
                 if (msg.data.event === "fill" || msg.data.event === "partial_fill") {
+                  alpacaFetch("GET", "/v2/account")
+                    .then(res => {
+                      accountAlpacaLastEquity.val = res.last_equity
+                      accountAlpacaEquity.val = res.equity
+                      accountAlpacaCash.val = res.cash
+                      accountAlpacaBuyingPower.val = res.buying_power
+                    })
                   alpacaFetch("GET", "/v2/positions")
                     .then(res => accountAlpacaPositions.val = res)
                 }
@@ -820,6 +832,9 @@
     })
     accountAlpacaBuyingPower.$(() => {
       $`account-alpaca-buying-power`.textContent = dollars(accountAlpacaBuyingPower.val)
+    })
+    accountAlpacaEquity.$(() => {
+      $`account-alpaca-pnl`.textContent = dollars((parseFloat(accountAlpacaEquity.val) - parseFloat(accountAlpacaLastEquity.val)).toFixed(2))
     })
     accountAlpacaPositions.$(() => {
       const newNodes = []
