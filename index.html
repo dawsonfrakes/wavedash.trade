@@ -754,8 +754,26 @@
                       accountAlpacaCash.val = res.cash
                       accountAlpacaBuyingPower.val = res.buying_power
                     })
-                  alpacaFetch("GET", "/v2/positions")
-                    .then(res => accountAlpacaPositions.val = res)
+                  let found = false
+                  for (let i = 0; i < accountAlpacaPositions.val.length; i++) {
+                    const position = accountAlpacaPositions.val[i]
+                    if (position.symbol === msg.data.order.symbol) {
+                      if (msg.data.position_qty !== "0") {
+                        position.qty = msg.data.position_qty
+                        accountAlpacaPositions.val = [...accountAlpacaPositions.val.slice(0, i), position, ...accountAlpacaPositions.val.slice(i + 1)]
+                      } else {
+                        accountAlpacaPositions.val = [...accountAlpacaPositions.val.slice(0, i), ...accountAlpacaPositions.val.slice(i + 1)]
+                      }
+                      found = true
+                      break
+                    }
+                  }
+                  if (!found) {
+                    setTimeout(() => {
+                      alpacaFetch("GET", "/v2/positions")
+                        .then(res => accountAlpacaPositions.val = res)
+                    }, 100)
+                  }
                 }
               }
             }
