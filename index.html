@@ -759,6 +759,9 @@
                     const position = accountAlpacaPositions.val[i]
                     if (position.symbol === msg.data.order.symbol) {
                       if (msg.data.position_qty !== "0") {
+                        if (msg.data.order.side === "buy") { // TODO: update cost-basis when shorting.
+                          position.avg_entry_price = (((parseFloat(position.qty) * parseFloat(position.avg_entry_price)) + (parseFloat(msg.data.qty) * parseFloat(msg.data.price))) / (parseFloat(position.qty) + parseFloat(msg.data.qty))).toFixed(2)
+                        }
                         position.qty = msg.data.position_qty
                         accountAlpacaPositions.val = [...accountAlpacaPositions.val.slice(0, i), position, ...accountAlpacaPositions.val.slice(i + 1)]
                       } else {
