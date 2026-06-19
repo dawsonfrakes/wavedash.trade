@@ -522,6 +522,14 @@
     </div>
     <div>
       <h3>Hot Buttons</h3>
+      <div>
+        <label for="order-entry-offset">Offset: </label>
+        <input id="order-entry-offset" type="number" min="0.01" step="0.01">
+      </div>
+      <button id="order-entry-buy-bid">Buy Bid</button>
+      <button id="order-entry-buy-ask-offset">Buy Ask+Offset</button>
+      <button id="order-entry-sell-ask">Sell Ask</button>
+      <button id="order-entry-sell-bid-offset">Sell Bid-Offset</button>
       <button id="order-entry-cancel">Cancel All</button>
     </div>
     <div>
@@ -605,6 +613,7 @@
     const orderEntryQuantity = useState("0")
     const orderEntryOrderType = useState("market")
     const orderEntryLimitPrice = useState("0")
+    const orderEntryOffset = useRetainedState("order-entry-offset", "0.10")
     const optionsUnderlying = useState("")
     const optionsContracts = useState([])
     const optionsValidExpirations = useState([])
@@ -943,6 +952,74 @@
         .then(res => info(`Alpaca sell order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}.`))
         .catch(err => error(`Alpaca sell order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${orderEntryOrderType.val === "limit" ? dollars(orderEntryLimitPrice.val) : "MKT"}. ${err}`))
     }
+    $`order-entry-buy-bid`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
+      if (accountAlpacaQuotes.val[orderEntrySymbol.val] === undefined) return
+      const price = accountAlpacaQuotes.val[orderEntrySymbol.val].bp
+      alpacaFetch("POST", "/v2/orders", {
+        time_in_force: "day",
+        side: "buy",
+        symbol: orderEntrySymbol.val,
+        qty: orderEntryQuantity.val,
+        limit_price: price,
+        extended_hours: true,
+        type: "limit"
+      })
+        .then(res => info(`Alpaca buy order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}.`))
+        .catch(err => error(`Alpaca buy order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}. ${err}`))
+    }
+    $`order-entry-buy-ask-offset`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
+      if (accountAlpacaQuotes.val[orderEntrySymbol.val] === undefined) return
+      const price = (parseFloat(accountAlpacaQuotes.val[orderEntrySymbol.val].ap) + parseFloat(orderEntryOffset.val)).toFixed(2)
+      alpacaFetch("POST", "/v2/orders", {
+        time_in_force: "day",
+        side: "buy",
+        symbol: orderEntrySymbol.val,
+        qty: orderEntryQuantity.val,
+        limit_price: price,
+        extended_hours: true,
+        type: "limit"
+      })
+        .then(res => info(`Alpaca buy order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}.`))
+        .catch(err => error(`Alpaca buy order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}. ${err}`))
+    }
+    $`order-entry-sell-ask`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
+      if (accountAlpacaQuotes.val[orderEntrySymbol.val] === undefined) return
+      const price = accountAlpacaQuotes.val[orderEntrySymbol.val].ap
+      alpacaFetch("POST", "/v2/orders", {
+        time_in_force: "day",
+        side: "sell",
+        symbol: orderEntrySymbol.val,
+        qty: orderEntryQuantity.val,
+        limit_price: price,
+        extended_hours: true,
+        type: "limit"
+      })
+        .then(res => info(`Alpaca sell order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}.`))
+        .catch(err => error(`Alpaca sell order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}. ${err}`))
+    }
+    $`order-entry-sell-bid-offset`.onclick = () => {
+      if (!accountAlpacaConnected.val) return
+      if (accountAlpacaQuotes.val[orderEntrySymbol.val] === undefined) return
+      const price = (parseFloat(accountAlpacaQuotes.val[orderEntrySymbol.val].bp) - parseFloat(orderEntryOffset.val)).toFixed(2)
+      alpacaFetch("POST", "/v2/orders", {
+        time_in_force: "day",
+        side: "sell",
+        symbol: orderEntrySymbol.val,
+        qty: orderEntryQuantity.val,
+        limit_price: price,
+        extended_hours: true,
+        type: "limit"
+      })
+        .then(res => info(`Alpaca sell order placed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}.`))
+        .catch(err => error(`Alpaca sell order failed for ${orderEntryQuantity.val} ${orderEntrySymbol.val} @ ${dollars(price)}. ${err}`))
+    }
+    orderEntryOffset.$(() => {
+      $`order-entry-offset`.value = orderEntryOffset.val
+      $`order-entry-offset`.oninput = e => orderEntryOffset.val = e.target.value
+    })
     $`order-entry-cancel`.onclick = () => {
       if (!accountAlpacaConnected.val) return
       alpacaFetch("DELETE", "/v2/orders")
